@@ -13,6 +13,7 @@ data/cache/*
 data/pretrain_model
 data/VOC*
 data/KITTI*
+models
 output
 logs
 utest
