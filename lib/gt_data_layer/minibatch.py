@@ -20,6 +20,8 @@ from ..fast_rcnn.config import cfg
 
 def get_minibatch(roidb, num_classes):
     """Given a roidb, construct a minibatch sampled from it."""
+    import pudb; pudb.set_trace()  # XXX BREAKPOINT
+
     num_images = len(roidb)
     assert(cfg.TRAIN.BATCH_SIZE % num_images == 0), \
         'num_images ({}) must divide BATCH_SIZE ({})'. \

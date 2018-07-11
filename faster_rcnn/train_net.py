@@ -14,6 +14,8 @@ import numpy as np
 import pdb
 import sys
 import os.path
+import os
+
 
 this_dir = os.path.dirname(__file__)
 sys.path.insert(0, this_dir + '/..')
@@ -61,6 +63,9 @@ def parse_args():
     parser.add_argument('--restore', dest='restore',
                         help='restore or not',
                         default=1, type=int)
+    parser.add_argument('--output_dir', dest='output_dir',
+                        help='directory of output results',
+                        default=None, type=str)
 
     if len(sys.argv) == 1:
         parser.print_help()
@@ -90,7 +95,8 @@ if __name__ == '__main__':
     print 'Loaded dataset `{:s}` for training'.format(imdb.name)
     roidb = get_training_roidb(imdb)
 
-    output_dir = get_output_dir(imdb, None)
+    output_dir =args.output_dir # get_output_dir(imdb, None)  ## benz
+    if not os.path.exists(output_dir): os.makedirs(output_dir )
     log_dir = get_log_dir(imdb)
     print 'Output will be saved to `{:s}`'.format(output_dir)
     print 'Logs will be saved to `{:s}`'.format(log_dir)

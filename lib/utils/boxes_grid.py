@@ -17,7 +17,8 @@ def get_boxes_grid(image_height, image_width):
     Return the boxes on image grid.
     calling this function when cfg.IS_MULTISCALE is True, otherwise, calling rdl_roidb.prepare_roidb(imdb) instead.
     """
-
+    import pudb; pudb.set_trace()  # XXX BREAKPOINT
+    
     # fixed a bug, change cfg.TRAIN.SCALES to cfg.TRAIN.SCALES_BASE
     # coz, here needs a ratio around 1.0, not the accutual size.
     # height and width of the feature map

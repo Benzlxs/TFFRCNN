@@ -49,9 +49,9 @@ class VGGnet_train(Network):
         # Loss of rpn_cls & rpn_boxes
         # shape is (1, H, W, A x 4) and (1, H, W, A x 2)
         (self.feed('rpn_conv/3x3')
-             .conv(1,1,len(anchor_scales) * 3 * 4, 1, 1, padding='VALID', relu = False, name='rpn_bbox_pred'))
+             .conv(1,1, 15 * 4, 1, 1, padding='VALID', relu = False, name='rpn_bbox_pred'))  ## benz, hand-coding, len(anchor_scales) * 3
         (self.feed('rpn_conv/3x3')
-             .conv(1, 1, len(anchor_scales) * 3 * 2, 1, 1, padding='VALID', relu=False, name='rpn_cls_score'))
+             .conv(1, 1, 15 * 2, 1, 1, padding='VALID', relu=False, name='rpn_cls_score'))  ## benz,len(anchor_scales) * 3
 
         # generating training labels on the fly
         # output: rpn_labels(HxWxA, 2) rpn_bbox_targets(HxWxA, 4) rpn_bbox_inside_weights rpn_bbox_outside_weights
@@ -65,7 +65,7 @@ class VGGnet_train(Network):
 
         # shape is (1, H, WxA, 2) -> (1, H, W, Ax2)
         (self.feed('rpn_cls_prob')
-             .spatial_reshape_layer(len(anchor_scales)*3*2, name = 'rpn_cls_prob_reshape'))
+             .spatial_reshape_layer( 15*2, name = 'rpn_cls_prob_reshape'))   ## benz,len(anchor_scales) * 3
 
         # ========= RoI Proposal ============
         # add the delta(output) to anchors then
@@ -79,7 +79,7 @@ class VGGnet_train(Network):
         (self.feed('rpn_rois','gt_boxes', 'gt_ishard', 'dontcare_areas')
              .proposal_target_layer(n_classes,name = 'roi-data'))
 
-        #========= RCNN ============        
+        #========= RCNN ============
         (self.feed('conv5_3', 'rois')
              .roi_pool(7, 7, 1.0/16, name='pool_5')
              .fc(4096, name='fc6')

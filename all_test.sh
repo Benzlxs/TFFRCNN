@@ -2,6 +2,10 @@
 
 train_script=./faster_rcnn/test_net.py
 
+export CUDA_VISIBLE_DEVICES=0
+
+
+
 cfg=./experiments/cfgs/faster_rcnn_kitti.yml
 imdb=kittivoc_test
 #weights=./output/faster_rcnn_kitti/kittivoc_train/VGGnet_fast_rcnn_iter_95000.ckpt
@@ -22,6 +26,7 @@ label_dir=/home/b/Kitti/testing/label_2/
 prefix_prediction=/home/b/tf_projects/img/TFFRCNN/output/faster_rcnn_kitti/kittivoc_test/VGGnet_fast_rcnn_iter_
 
 output_result_dir=./output/faster_rcnn_kitti/kittivoc_test/result_07.txt
+every_one=/result_07.txt
 
 for ((i=interval; i<=iters_max; i=i+interval));do
 	echo $i
@@ -32,6 +37,8 @@ for ((i=interval; i<=iters_max; i=i+interval));do
 	prediction_dir=$prefix_prediction$i
 	
 	echo $i | tee -a $output_result_dir
-	run_eval="./lib/kitti_native_eval/evaluate_object_3d_offline $label_dir $prediction_dir | tee -a $output_result_dir"
-	$run_eval
+	./lib/kitti_native_eval/evaluate_object_3d_offline $label_dir $prediction_dir | tee -a $output_result_dir
+	#$run_eval
+	back_dir=$prefix_prediction$i$every_one
+	cp $output_result_dir $back_dir
 done

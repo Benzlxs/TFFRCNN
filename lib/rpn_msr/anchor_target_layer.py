@@ -21,7 +21,7 @@ from ..fast_rcnn.bbox_transform import bbox_transform
 # <<<< obsolete
 
 
-DEBUG = False 
+DEBUG = False
 
 class AnchorTargetLayer(caffe.Layer):
     """
@@ -30,9 +30,12 @@ class AnchorTargetLayer(caffe.Layer):
     """
 
     def setup(self, bottom, top):
-        self._anchors = generate_anchors(cfg.TRAIN.RPN_BASE_SIZE, cfg.TRAIN.RPN_ASPECTS, cfg.TRAIN.RPN_SCALES)
-        self._num_anchors = self._anchors.shape[0]
 
+        #self._anchors = generate_anchors(cfg.TRAIN.RPN_BASE_SIZE, cfg.TRAIN.RPN_ASPECTS, cfg.TRAIN.RPN_SCALES)  ## benz
+        self._anchors = generate_anchors()
+        self._num_anchors = self._anchors.shape[0]
+        print self._anchors
+        print self._num_anchors
         if DEBUG:
             print 'anchors:'
             print self._anchors

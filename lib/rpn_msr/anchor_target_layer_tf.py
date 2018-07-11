@@ -44,7 +44,7 @@ def anchor_target_layer(rpn_cls_score, gt_boxes, gt_ishard, dontcare_areas, im_i
     rpn_bbox_outside_weights: (HxWxA, 4) used to balance the fg/bg,
                             beacuse the numbers of bgs and fgs mays significiantly different
     """
-    _anchors = generate_anchors(scales=np.array(anchor_scales))
+    _anchors = generate_anchors( )#scales=np.array(anchor_scales)) ## benz
     _num_anchors = _anchors.shape[0]
 
     if DEBUG:
