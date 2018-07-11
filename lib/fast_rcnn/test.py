@@ -328,10 +328,10 @@ def test_net(sess, net, imdb, weights_filename , max_per_image=300, thresh=0.05,
                     all_boxes[j][i] = all_boxes[j][i][keep, :]
         nms_time = _t['misc'].toc(average=False)
 
-        text_dir = os.path.join(output_dir,'results')
+        text_dir = os.path.join(output_dir,'data')
         if not os.path.exists(text_dir): os.makedirs(text_dir)
 
-        txt_output_dir = os.path.join(output_dir,'data/',imdb._image_index[i]+'.txt')
+        txt_output_dir = os.path.join(text_dir, imdb._image_index[i]+'.txt')
         save_classes = ('__background__', 'Pedestrian', 'Car', 'Cyclist')
         with open(txt_output_dir, 'wt') as f:
             #for each class
