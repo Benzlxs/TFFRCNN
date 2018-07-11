@@ -208,10 +208,14 @@ if __name__ == '__main__':
     _doncateothers = bool(args.dontcareothers)
 
     # for kitti only provides training labels
-    for dset in ['train']:
+    for dset in ['train','test']:
 
-        _labeldir = os.path.join(_kittidir, 'training', 'label_2')
-        _imagedir = os.path.join(_kittidir, 'training', 'image_2')
+        #_labeldir = os.path.join(_kittidir, 'training', 'label_2')
+        #_imagedir = os.path.join(_kittidir, 'training', 'image_2')
+        _labeldir = os.path.join(_kittidir, dset+'ing' , 'label_2')
+        _imagedir = os.path.join(_kittidir, dset+'ing', 'image_2')
+
+
         """
         class_sets = ('pedestrian', 'cyclist', 'car', 'person_sitting', 'van', 'truck', 'tram', 'misc', 'dontcare')
         """
@@ -268,10 +272,10 @@ if __name__ == '__main__':
         print '~~~~~~~~~~~~~~~~~~~'
         print allclasses
         print '~~~~~~~~~~~~~~~~~~~'
-        shutil.copyfile(os.path.join(_dest_set_dir, 'train.txt'), os.path.join(_dest_set_dir, 'val.txt'))
-        shutil.copyfile(os.path.join(_dest_set_dir, 'train.txt'), os.path.join(_dest_set_dir, 'trainval.txt'))
-        for cls in class_sets:
-            shutil.copyfile(os.path.join(_dest_set_dir, cls + '_train.txt'),
-                            os.path.join(_dest_set_dir, cls + '_trainval.txt'))
-            shutil.copyfile(os.path.join(_dest_set_dir, cls + '_train.txt'),
-                            os.path.join(_dest_set_dir, cls + '_val.txt'))
+        #shutil.copyfile(os.path.join(_dest_set_dir, 'train.txt'), os.path.join(_dest_set_dir, 'val.txt'))
+        #shutil.copyfile(os.path.join(_dest_set_dir, 'train.txt'), os.path.join(_dest_set_dir, 'trainval.txt'))
+        #for cls in class_sets:
+        #    shutil.copyfile(os.path.join(_dest_set_dir, cls + '_train.txt'),
+        #                    os.path.join(_dest_set_dir, cls + '_trainval.txt'))
+        #    shutil.copyfile(os.path.join(_dest_set_dir, cls + '_train.txt'),
+        #                    os.path.join(_dest_set_dir, cls + '_val.txt'))

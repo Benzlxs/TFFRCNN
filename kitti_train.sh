@@ -9,7 +9,8 @@ weights=./data/pretrain_model/VGG_imagenet.npy
 network=VGGnet_train
 gpu=0
 restore=0
-exe=python
+#exe=python
+exe=~/tf18_gpu/bin/pudb
 
 
 run_train="$exe $train_script --gpu $gpu --weights $weights --imdb $imdb --iters $iters --cfg $cfg --network $network --restore $restore"

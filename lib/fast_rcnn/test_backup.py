@@ -171,7 +171,7 @@ def im_detect(sess, net, im, boxes=None):
     cls_score, cls_prob, bbox_pred, rois = \
         sess.run([net.get_output('cls_score'), net.get_output('cls_prob'), net.get_output('bbox_pred'),net.get_output('rois')],\
                  feed_dict=feed_dict)
-
+    
     if cfg.TEST.HAS_RPN:
         assert len(im_scales) == 1, "Only single-image batch implemented"
         boxes = rois[:, 1:5] / im_scales[0]
@@ -203,11 +203,11 @@ def im_detect(sess, net, im, boxes=None):
 
 def vis_detections(im, class_name, dets, thresh=0.8):
     """Visual debugging of detections."""
-    import matplotlib.pyplot as plt
+    import matplotlib.pyplot as plt 
     #im = im[:, :, (2, 1, 0)]
     for i in xrange(np.minimum(10, dets.shape[0])):
-        bbox = dets[i, :4]
-        score = dets[i, -1]
+        bbox = dets[i, :4] 
+        score = dets[i, -1] 
         if score > thresh:
             #plt.cla()
             #plt.imshow(im)
@@ -272,10 +272,7 @@ def test_net(sess, net, imdb, weights_filename , max_per_image=300, thresh=0.05,
     if not cfg.TEST.HAS_RPN:
         roidb = imdb.roidb
 
-    # det_dir = os.path.join(output_dir,'pkl_file')
-    # if not os.path.exists(det_dir): os.makedirs(det_dir)
-
-    det_file = os.path.join(output_dir,'detections.pkl')
+    det_file = os.path.join(output_dir, 'detections.pkl')
     # if os.path.exists(det_file):
     #     with open(det_file, 'rb') as f:
     #         all_boxes = cPickle.load(f)
@@ -299,7 +296,7 @@ def test_net(sess, net, imdb, weights_filename , max_per_image=300, thresh=0.05,
 
         _t['misc'].tic()
         if vis:
-            image = im[:, :, (2, 1, 0)]
+            image = im[:, :, (2, 1, 0)] 
             plt.cla()
             plt.imshow(image)
 
@@ -327,24 +324,6 @@ def test_net(sess, net, imdb, weights_filename , max_per_image=300, thresh=0.05,
                     keep = np.where(all_boxes[j][i][:, -1] >= image_thresh)[0]
                     all_boxes[j][i] = all_boxes[j][i][keep, :]
         nms_time = _t['misc'].toc(average=False)
-
-        text_dir = os.path.join(output_dir,'results')
-        if not os.path.exists(text_dir): os.makedirs(text_dir)
-
-        txt_output_dir = os.path.join(output_dir,'data/',imdb._image_index[i]+'.txt')
-        save_classes = ('__background__', 'Pedestrian', 'Car', 'Cyclist')
-        with open(txt_output_dir, 'wt') as f:
-            #for each class
-            for cls_ind, cls in enumerate(save_classes):
-                if cls == '__background__':
-                    continue
-                dets = all_boxes[cls_ind][i]
-                if dets == []:
-                    continue
-                for k in xrange(dets.shape[0]):
-                    f.write("%s -1 -1 -10 %.3f %.3f %.3f %.3f -1 -1 -1 -1000 -1000 -1000 -10 %.8f\n"%(cls,dets[k, 0], dets[k, 1], dets[k, 2], dets[k, 3], dets[k, 4]))
-                    #f.write('{:s} -1 -1 -10 {:f} {:f} {:f} {:f} -1 -1 -1 -1 -1 -1 -1 {:.32f}\n'.format(\
-                    #        cls, dets[k, 0], dets[k, 1], dets[k, 2], dets[k, 3], dets[k, 4]))
 
         print 'im_detect: {:d}/{:d} {:.3f}s {:.3f}s' \
               .format(i + 1, num_images, detect_time, nms_time)

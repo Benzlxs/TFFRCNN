@@ -14,6 +14,7 @@ data/pretrain_model
 data/VOC*
 data/KITTI*
 models
+.ropeproject/
 output
 logs
 utest
