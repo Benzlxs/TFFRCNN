@@ -47,6 +47,10 @@ def parse_args():
     parser.add_argument('--network', dest='network_name',
                         help='name of the network',
                         default=None, type=str)
+    parser.add_argument('--output_dir', dest='output_dir',
+                        help='output_dir',
+                        default=None, type=str)
+
 
     if len(sys.argv) == 1:
         parser.print_help()
@@ -90,4 +94,4 @@ if __name__ == '__main__':
     saver.restore(sess, args.model)
     print ('Loading model weights from {:s}').format(args.model)
 
-    test_net(sess, network, imdb, weights_filename)
+    test_net(sess, network, imdb, weights_filename, output_dir=args.output_dir)
