@@ -44,7 +44,7 @@ class VGGnet_test(Network):
          .conv(1, 1, 15 * 2, 1, 1, padding='VALID', relu=False, name='rpn_cls_score'))   ##benz
 
         (self.feed('rpn_conv/3x3')
-         .conv(1, 1, 15 * 4, 1, 1, padding='VALID', relu=False, name='rpn_bbox_pred'))  ## len(anchor_scales)
+         .conv(1, 1, 15 * 4, 1, 1, padding='VALID', relu=False, name='rpn_bbox_pred'))  ## benz,  len(anchor_scales)
 
         #  shape is (1, H, W, Ax2) -> (1, H, WxA, 2)
         (self.feed('rpn_cls_score')
@@ -53,7 +53,7 @@ class VGGnet_test(Network):
 
         # shape is (1, H, WxA, 2) -> (1, H, W, Ax2)
         (self.feed('rpn_cls_prob')
-         .spatial_reshape_layer( 15 * 2, name='rpn_cls_prob_reshape'))
+         .spatial_reshape_layer( 15 * 2, name='rpn_cls_prob_reshape'))   ## benz
 
         (self.feed('rpn_cls_prob_reshape', 'rpn_bbox_pred', 'im_info')
          .proposal_layer(_feat_stride, anchor_scales, 'TEST', name='rois'))

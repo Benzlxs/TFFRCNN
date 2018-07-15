@@ -6,14 +6,14 @@ export CUDA_VISIBLE_DEVICES=0
 
 
 cfg=./experiments/cfgs/faster_rcnn_kitti.yml
-iters=320000
+iters=140000
 imdb=kittivoc_train
 weights=./data/pretrain_model/VGG_imagenet.npy
 network=VGGnet_train
 gpu=0
 restore=0
 
-output_dir=./output/faster_rcnn_kitti/kittivoc_train/anchor_15
+output_dir=./output/faster_rcnn_kitti/kittivoc_train/anchor_15_scale_5_aspect_ratio_3
 exe=python
 #exe=~/tf18_gpu/bin/pudb
 

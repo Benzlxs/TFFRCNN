@@ -97,6 +97,8 @@ if __name__ == '__main__':
 
     output_dir =args.output_dir # get_output_dir(imdb, None)  ## benz
     if not os.path.exists(output_dir): os.makedirs(output_dir )
+    os.system('cp ./lib/rpn_msr/generate_anchors.py %s' %(output_dir))
+
     log_dir = get_log_dir(imdb)
     print 'Output will be saved to `{:s}`'.format(output_dir)
     print 'Logs will be saved to `{:s}`'.format(log_dir)
