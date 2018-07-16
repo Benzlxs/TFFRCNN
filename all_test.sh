@@ -3,8 +3,13 @@
 train_script=./faster_rcnn/test_net.py
 
 export CUDA_VISIBLE_DEVICES=0
+iters_max=140000  ## this one must be consistent with number in train file
+interval=5000    ## must be the same in faster_rcnn_kitti.yml file
+name_anchors=anchor_27_scale_9_aspect_ratio_3
 
 
+back_slash=/
+postfix_file=.txt
 
 cfg=./experiments/cfgs/faster_rcnn_kitti.yml
 imdb=kittivoc_test
@@ -15,24 +20,22 @@ gpu=0
 exe=python
 #exe=~/tf18_gpu/bin/pudb
 
-name_anchors=anchor_15_scale_5_aspect_ratio_3
-
 ### the training model
-prefix_weight=./output/faster_rcnn_kitti/kittivoc_train/anchor_15_scale_5_aspect_ratio_3/VGGnet_fast_rcnn_iter_
+string1_1=./output/faster_rcnn_kitti/kittivoc_train/
+string1_2=/VGGnet_fast_rcnn_iter_
+prefix_weight=$string1_1$name_anchors$string1_2
 postfix_weight=.ckpt
 
-iters_max=140000  ## this one must be consistent with number in train file
-interval=5000    ## must be the same in faster_rcnn_kitti.yml file
-
-### output of training model
+### output of training model to generate the prediction txt files
+string2_1=./output/faster_rcnn_kitti/kittivoc_test/
+string2_2=/VGGnet_fast_rcnn_iter_
 label_dir=/home/b/Kitti/testing/label_2/
-prefix_prediction=/home/b/tf_projects/img/TFFRCNN/output/faster_rcnn_kitti/kittivoc_test/anchor_15_scale_5_aspect_ratio_3/VGGnet_fast_rcnn_iter_
+prefix_prediction=$string2_1$name_anchors$string2_2
 
-
-### the output of results runing evaluation code
-output_dir=./output/faster_rcnn_kitti/kittivoc_test/anchor_15_scale_5_aspect_ratio_3
-output_result_dir=./output/faster_rcnn_kitti/kittivoc_test/anchor_15_scale_5_aspect_ratio_3/result_15.txt
-every_one=/result_15.txt
+### the output of results runing evaluation code of kitti official one
+every_one=$back_slash$name_anchors$postfix_file
+output_dir=$string2_1$name_anchors
+output_result_dir=$string2_1$name_anchors$every_one
 
 for ((i=interval; i<=iters_max; i=i+interval));do
 	echo $i
@@ -44,7 +47,6 @@ for ((i=interval; i<=iters_max; i=i+interval));do
 	
 	echo $i | tee -a $output_result_dir
 	./lib/kitti_native_eval/evaluate_object_3d_offline $label_dir $prediction_dir | tee -a $output_result_dir
-	#$run_eval
 	back_dir=$prefix_prediction$i$every_one
 	cp $output_result_dir $back_dir
 done

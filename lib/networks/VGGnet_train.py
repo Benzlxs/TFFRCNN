@@ -2,6 +2,8 @@ import tensorflow as tf
 from network import Network
 from ..fast_rcnn.config import cfg
 
+BENZ_num_anchors=27
+
 class VGGnet_train(Network):
     def __init__(self, trainable=True):
         self.inputs = []
@@ -49,9 +51,9 @@ class VGGnet_train(Network):
         # Loss of rpn_cls & rpn_boxes
         # shape is (1, H, W, A x 4) and (1, H, W, A x 2)
         (self.feed('rpn_conv/3x3')
-             .conv(1,1, 15 * 4, 1, 1, padding='VALID', relu = False, name='rpn_bbox_pred'))  ## benz, hand-coding, len(anchor_scales) * 3
+             .conv(1,1, BENZ_num_anchors * 4, 1, 1, padding='VALID', relu = False, name='rpn_bbox_pred'))  ## benz, hand-coding, len(anchor_scales) * 3
         (self.feed('rpn_conv/3x3')
-             .conv(1, 1, 15 * 2, 1, 1, padding='VALID', relu=False, name='rpn_cls_score'))  ## benz,len(anchor_scales) * 3
+             .conv(1, 1, BENZ_num_anchors * 2, 1, 1, padding='VALID', relu=False, name='rpn_cls_score'))  ## benz,len(anchor_scales) * 3
 
         # generating training labels on the fly
         # output: rpn_labels(HxWxA, 2) rpn_bbox_targets(HxWxA, 4) rpn_bbox_inside_weights rpn_bbox_outside_weights
@@ -65,7 +67,7 @@ class VGGnet_train(Network):
 
         # shape is (1, H, WxA, 2) -> (1, H, W, Ax2)
         (self.feed('rpn_cls_prob')
-             .spatial_reshape_layer( 15*2, name = 'rpn_cls_prob_reshape'))   ## benz,len(anchor_scales) * 3
+             .spatial_reshape_layer( BENZ_num_anchors * 2, name = 'rpn_cls_prob_reshape'))   ## benz,len(anchor_scales) * 3
 
         # ========= RoI Proposal ============
         # add the delta(output) to anchors then
