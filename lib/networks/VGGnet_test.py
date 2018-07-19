@@ -2,7 +2,7 @@ import tensorflow as tf
 from .network import Network
 from ..fast_rcnn.config import cfg
 
-BENZ_num_anchors=57
+BENZ_num_anchors=25
 
 class VGGnet_test(Network):
     def __init__(self, trainable=True):
