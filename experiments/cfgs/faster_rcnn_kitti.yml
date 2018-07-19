@@ -2,7 +2,6 @@ EXP_DIR: faster_rcnn_kitti
 LOG_DIR: faster_rcnn_kitti2
 IS_MULTISCALE: False
 NET_NAME: VGGnet
-ANCHOR_SCALES: [ 1. ,  5.5, 10. , 14.5, 19.]
 NCLASSES: 4
 TRAIN:
   PRECLUDE_HARD_SAMPLES: True

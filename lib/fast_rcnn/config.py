@@ -33,7 +33,9 @@ cfg = __C
 
 # region proposal network (RPN) or not
 __C.IS_RPN = True
-__C.ANCHOR_SCALES = [ 1. ,  5.5, 10. , 14.5, 19.]
+__C.ANCHOR_SCALES = np.arange(1,23,2.)  # [ 1. ,  5.5, 10. , 14.5, 19.]
+__C.RATIOS = [0.3, 0.5, 1.0, 2.0, 3.5]
+__C.ANCHOR_NUM=55
 __C.NCLASSES = 4
 
 # multiscale training and testing

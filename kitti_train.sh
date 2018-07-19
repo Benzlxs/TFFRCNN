@@ -13,7 +13,7 @@ network=VGGnet_train
 gpu=1
 restore=0
 
-output_dir=./output/faster_rcnn_kitti/kittivoc_train/anchor_25_scale_5_aspect_ratio_5
+output_dir=./output/faster_rcnn_kitti/kittivoc_train/anchor_55_scale_11_aspect_ratio_5
 exe=python
 #exe=~/tf18_gpu/bin/pudb
 
