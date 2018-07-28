@@ -33,9 +33,9 @@ cfg = __C
 
 # region proposal network (RPN) or not
 __C.IS_RPN = True
-__C.ANCHOR_SCALES = np.arange(1, 23, 0.9)  # [ 1. ,  5.5, 10. , 14.5, 19.]
-__C.RATIOS =[ 0.3, 0.5, 1.0, 2.0, 3.5 ]  # 7, [0.3, 0.5, 0.75, 1.0, 1.3 , 2.0, 3.5]   # 3 [0.5, 1.0, 2.0]
-__C.ANCHOR_NUM=125
+__C.ANCHOR_SCALES =  np.arange(1, 23, 0.9)  #
+__C.RATIOS = [0.5, 1.0, 2.0] #  [0.3, 0.5, 0.75, 1.0, 1.3 , 2.0, 3.5] # [ 0.3, 0.5, 1.0, 2.0, 3.5 ]  # 7, [0.3, 0.5, 0.75, 1.0, 1.3 , 2.0, 3.5]   # 3 [0.5, 1.0, 2.0]
+__C.ANCHOR_NUM=75
 __C.NCLASSES = 4
 
 # multiscale training and testing
@@ -85,7 +85,7 @@ __C.TRAIN.MAX_SIZE = 1000
 __C.TRAIN.IMS_PER_BATCH = 2
 
 # Minibatch size (number of regions of interest [ROIs])
-__C.TRAIN.BATCH_SIZE = 128
+__C.TRAIN.BATCH_SIZE = 256
 
 # Fraction of minibatch that is labeled foreground (i.e. class > 0)
 __C.TRAIN.FG_FRACTION = 0.25
@@ -154,7 +154,7 @@ __C.TRAIN.RPN_CLOBBER_POSITIVES = False
 # Max number of foreground examples
 __C.TRAIN.RPN_FG_FRACTION = 0.5
 # Total number of examples
-__C.TRAIN.RPN_BATCHSIZE = 256
+__C.TRAIN.RPN_BATCHSIZE = 512
 # NMS threshold used on RPN proposals
 __C.TRAIN.RPN_NMS_THRESH = 0.7
 # Number of top scoring boxes to keep before apply NMS to RPN proposals
