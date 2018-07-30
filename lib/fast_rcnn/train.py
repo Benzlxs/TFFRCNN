@@ -17,6 +17,7 @@ from ..roi_data_layer.layer import RoIDataLayer
 from ..utils.timer import Timer
 from ..gt_data_layer import roidb as gdl_roidb
 from ..roi_data_layer import roidb as rdl_roidb
+from ..networks import load_pretrained_model
 
 # >>>> obsolete, because it depends on sth outside of this project
 from ..fast_rcnn.config import cfg
@@ -155,7 +156,9 @@ class SolverWrapper(object):
             try:
                 print ('Loading pretrained model '
                    'weights from {:s}').format(self.pretrained_model)
-                self.net.load(self.pretrained_model, sess, True)
+                #self.net.load(self.pretrained_model, sess, True)
+                ## load pretrained models
+                load_pretrained_model.import_pretrained_models_from_ckpt( sess , self.pretrained_model)  ##benz
             except:
                 raise 'Check your pretrained model {:s}'.format(self.pretrained_model)
 

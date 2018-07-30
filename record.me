@@ -30,3 +30,12 @@ What are the disadvantage of increasing anchor number?
 ## bugging problem
 1, issue
 undefined symbol: PyUnicodeUCS4_DecodeUTF8 , build the code with corresponding python version
+
+
+
+step to using resent-fpn:
+1. build resnet101-fpn for training
+2. restore weights and biaes for fine-tuning the model
+3. be careful that download model inputs format is RGB, but input in this network is BGR, so need to change channels of parameters
+4. build resent101-fpn for testing
+

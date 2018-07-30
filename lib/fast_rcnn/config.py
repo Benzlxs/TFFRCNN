@@ -37,6 +37,10 @@ __C.ANCHOR_SCALES =  np.arange(1, 23, 0.9)  #
 __C.RATIOS = [0.5, 1.0, 2.0] #  [0.3, 0.5, 0.75, 1.0, 1.3 , 2.0, 3.5] # [ 0.3, 0.5, 1.0, 2.0, 3.5 ]  # 7, [0.3, 0.5, 0.75, 1.0, 1.3 , 2.0, 3.5]   # 3 [0.5, 1.0, 2.0]
 __C.ANCHOR_NUM=75
 __C.NCLASSES = 4
+__C.fixed_block = 1
+__C.rpn_weight_decay = 0.0001
+
+
 
 # multiscale training and testing
 __C.IS_MULTISCALE = False
