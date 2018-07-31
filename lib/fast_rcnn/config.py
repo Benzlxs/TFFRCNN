@@ -33,9 +33,9 @@ cfg = __C
 
 # region proposal network (RPN) or not
 __C.IS_RPN = True
-__C.ANCHOR_SCALES =  np.arange(1, 23, 0.9)  #
-__C.RATIOS = [0.5, 1.0, 2.0] #  [0.3, 0.5, 0.75, 1.0, 1.3 , 2.0, 3.5] # [ 0.3, 0.5, 1.0, 2.0, 3.5 ]  # 7, [0.3, 0.5, 0.75, 1.0, 1.3 , 2.0, 3.5]   # 3 [0.5, 1.0, 2.0]
-__C.ANCHOR_NUM=75
+__C.ANCHOR_SCALES = np.arange(2,23,2.)  # np.arange(1, 23, 0.9)  #
+__C.RATIOS =  [ 0.3, 0.5, 1.0, 2.0, 3.5 ]  # 7, [0.3, 0.5, 0.75, 1.0, 1.3 , 2.0, 3.5]   # 3 [0.5, 1.0, 2.0]
+__C.ANCHOR_NUM = 55
 __C.NCLASSES = 4
 __C.fixed_block = 1
 __C.rpn_weight_decay = 0.0001
@@ -80,10 +80,10 @@ __C.TRAIN.ASPECTS= (1,)
 
 # Scales to use during training (can list multiple scales)
 # Each scale is the pixel size of an image's shortest side
-__C.TRAIN.SCALES = (600,)
+__C.TRAIN.IMAGE_SIZE = (384, 1280)
 
 # Max pixel size of the longest side of a scaled input image
-__C.TRAIN.MAX_SIZE = 1000
+__C.TRAIN.MAX_SIZE = 1280
 
 # Images to use per minibatch
 __C.TRAIN.IMS_PER_BATCH = 2
@@ -99,8 +99,8 @@ __C.TRAIN.FG_THRESH = 0.5
 
 # Overlap threshold for a ROI to be considered background (class = 0 if
 # overlap in [LO, HI))
-__C.TRAIN.BG_THRESH_HI = 0.5
-__C.TRAIN.BG_THRESH_LO = 0.1
+__C.TRAIN.BG_THRESH_HI = 0.55
+__C.TRAIN.BG_THRESH_LO = 0.3
 
 # Use horizontally-flipped images during training?
 __C.TRAIN.USE_FLIPPED = True
@@ -152,7 +152,7 @@ __C.TRAIN.HAS_RPN = True
 # IOU >= thresh: positive example
 __C.TRAIN.RPN_POSITIVE_OVERLAP = 0.7
 # IOU < thresh: negative example
-__C.TRAIN.RPN_NEGATIVE_OVERLAP = 0.3
+__C.TRAIN.RPN_NEGATIVE_OVERLAP = 0.4
 # If an anchor statisfied by positive and negative conditions set to negative
 __C.TRAIN.RPN_CLOBBER_POSITIVES = False
 # Max number of foreground examples

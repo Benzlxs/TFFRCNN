@@ -98,7 +98,7 @@ class SolverWrapper(object):
         # import tensorflow.python.ops.gen_logging_ops as logging_ops
         from tensorflow.python.ops import gen_logging_ops
         from tensorflow.python.framework import ops as _ops
-        log_image = gen_logging_ops.image_summary(log_image_name, tf.expand_dims(log_image_data, 0), max_images=1)
+        log_image = gen_logging_ops._image_summary(log_image_name, tf.expand_dims(log_image_data, 0), max_images=1)
         #log_image = tf.summary.image(log_image_name, tf.expand_dims(log_image_data, 0), max_outputs=1)
 
         _ops.add_to_collection(_ops.GraphKeys.SUMMARIES, log_image)
@@ -153,14 +153,14 @@ class SolverWrapper(object):
 
         # load vgg16
         if self.pretrained_model is not None and not restore:
+	    # import pudb;pudb.set_trace()	
             try:
-                print ('Loading pretrained model '
-                   'weights from {:s}').format(self.pretrained_model)
+                print ('Loading pretrained model weights from {:s}').format(self.pretrained_model)
                 #self.net.load(self.pretrained_model, sess, True)
                 ## load pretrained models
                 load_pretrained_model.import_pretrained_models_from_ckpt( sess , self.pretrained_model)  ##benz
             except:
-                raise 'Check your pretrained model {:s}'.format(self.pretrained_model)
+                raise Exception('Check your pretrained model {:s}'.format(self.pretrained_model))
 
         # resuming a trainer
         if restore:
@@ -173,7 +173,7 @@ class SolverWrapper(object):
                 sess.run(global_step.assign(restore_iter))
                 print 'done'
             except:
-                raise 'Check your pretrained {:s}'.format(ckpt.model_checkpoint_path)
+                raise Exception('Check your pretrained {:s}'.format(ckpt.model_checkpoint_path))
 
         last_snapshot_iter = -1
         timer = Timer()

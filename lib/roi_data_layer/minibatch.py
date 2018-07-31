@@ -23,8 +23,8 @@ def get_minibatch(roidb, num_classes):
     num_images = len(roidb)
     
     # Sample random scales to use for each image in this batch
-    random_scale_inds = npr.randint(0, high=len(cfg.TRAIN.SCALES),
-                                    size=num_images)
+    # random_scale_inds = npr.randint(0, high=len(cfg.TRAIN.SCALES),
+    #                                size=num_images)
     assert(cfg.TRAIN.BATCH_SIZE % num_images == 0), \
         'num_images ({}) must divide BATCH_SIZE ({})'. \
         format(num_images, cfg.TRAIN.BATCH_SIZE)
@@ -32,7 +32,7 @@ def get_minibatch(roidb, num_classes):
     fg_rois_per_image = np.round(cfg.TRAIN.FG_FRACTION * rois_per_image)
 
     # Get the input image blob, formatted for caffe
-    im_blob, im_scales = _get_image_blob(roidb, random_scale_inds)
+    im_blob, im_scales = _get_image_blob(roidb) # , random_scale_inds)
 
     blobs = {'data': im_blob}
 
@@ -139,7 +139,7 @@ def _sample_rois(roidb, fg_rois_per_image, rois_per_image, num_classes):
 
     return labels, overlaps, rois, bbox_targets, bbox_inside_weights
 
-def _get_image_blob(roidb, scale_inds):
+def _get_image_blob(roidb, scale_inds=None):
     """Builds an input blob from the images in the roidb at the specified
     scales.
     """
@@ -150,7 +150,7 @@ def _get_image_blob(roidb, scale_inds):
         im = cv2.imread(roidb[i]['image'])
         if roidb[i]['flipped']:
             im = im[:, ::-1, :]
-        target_size = cfg.TRAIN.SCALES[scale_inds[i]]
+        target_size =cfg.TRAIN.IMAGE_SIZE # cfg.TRAIN.SCALES[scale_inds[i]]  (384, 1280)
         im, im_scale = prep_im_for_blob(im, cfg.PIXEL_MEANS, target_size,
                                         cfg.TRAIN.MAX_SIZE)
         im_scales.append(im_scale)

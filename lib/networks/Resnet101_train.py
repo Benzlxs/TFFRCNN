@@ -15,11 +15,37 @@ from tensorflow.contrib.slim.python.slim.nets import resnet_v1
 from tensorflow.contrib.slim.python.slim.nets.resnet_v1 import resnet_v1_block
 
 
+slim = tf.contrib.slim
+
+def resnet_arg_scope(is_training=True,
+                     weight_decay=0.0001,
+                     batch_norm_decay=0.997,
+                     batch_norm_epsilon=1e-5,
+                     batch_norm_scale=True):
+    batch_norm_params = {
+        'is_training': False,
+        'decay': batch_norm_decay,
+        'epsilon': batch_norm_epsilon,
+        'scale': batch_norm_scale,
+        'trainable': False,
+        'updates_collections': tf.GraphKeys.UPDATE_OPS
+    }
+    with arg_scope(
+        [slim.conv2d],
+        weights_regularizer=slim.l2_regularizer( weight_decay ),
+        weights_initializer=slim.variance_scaling_initializer(),
+        trainable=is_training,
+        activation_fn=tf.nn.relu,
+        normalizer_fn=slim.batch_norm,
+        normalizer_params=batch_norm_params):
+        with arg_scope([slim.batch_norm], **batch_norm_params) as arg_sc:
+            return arg_sc
+
 
 class Resnet101_train(Network):
     def __init__(self, trainable=True):
         self.inputs = []
-        self.data = tf.placeholder(tf.float32, shape=[None, None, None, 3], name='data')
+        self.data = tf.placeholder(tf.float32, shape=[None, cfg.TRAIN.IMAGE_SIZE[0], cfg.TRAIN.IMAGE_SIZE[1] , 3], name='data')
         self.im_info = tf.placeholder(tf.float32, shape=[None, 3], name='im_info')
         self.gt_boxes = tf.placeholder(tf.float32, shape=[None, 5], name='gt_boxes')
         self.gt_ishard = tf.placeholder(tf.int32, shape=[None], name='gt_ishard')
@@ -35,18 +61,21 @@ class Resnet101_train(Network):
         n_classes = cfg.NCLASSES
         # anchor_scales = [8, 16, 32]
         anchor_scales = cfg.ANCHOR_SCALES
-        _feat_stride = [8, ]
+        _feat_stride = [4, ]
         num_anchors=cfg.ANCHOR_NUM
-
+	# import pudb; pudb.set_trace()
         self.layers['res4b22_relu'] = self.build(self.data, True)
 
 
 
         #========= RPN ============
+        # (self.feed('res4b22_relu')
+
+        #========= RPN ============
         (self.feed('res4b22_relu')
              .conv(3,3,512,1,1,name='rpn_conv/3x3')
              .conv(1,1, num_anchors*2 ,1 , 1, padding='VALID', relu = False, name='rpn_cls_score'))
-
+  
         (self.feed('rpn_cls_score', 'gt_boxes', 'gt_ishard', 'dontcare_areas', 'im_info')
              .anchor_target_layer(_feat_stride, anchor_scales, name = 'rpn-data' ))
         # Loss of rpn_cls & rpn_boxes
@@ -68,51 +97,50 @@ class Resnet101_train(Network):
         (self.feed('rpn_rois','gt_boxes', 'gt_ishard', 'dontcare_areas')
              .proposal_target_layer(n_classes,name = 'roi-data'))
 
-
-        #========= RCNN ============
+        #========= RCNN ============        
         (self.feed('res4b22_relu','roi-data')
              .roi_pool(7,7,1.0/16,name='res5a_branch2a_roipooling')
-             .conv(1, 1, 512, 2, 2, biased=False, relu=False, name='res5a_branch2a',padding='VALID')
-             .batch_normalization(relu=True, name='bn5a_branch2a',is_training=False)
+             .conv(1, 1, 512, 2, 2, biased=False, relu=False, name='res5a_branch2a', padding='VALID')
+             .batch_normalization(relu=True, name='bn5a_branch2a',is_training=True)
              .conv(3, 3, 512, 1, 1, biased=False, relu=False, name='res5a_branch2b')
-             .batch_normalization(relu=True, name='bn5a_branch2b',is_training=False)
+             .batch_normalization(relu=True, name='bn5a_branch2b',is_training=True)  ## false
              .conv(1, 1, 2048, 1, 1, biased=False, relu=False, name='res5a_branch2c')
-             .batch_normalization(name='bn5a_branch2c',is_training=False,relu=False))
+             .batch_normalization(name='bn5a_branch2c',is_training=True,relu=False))
 
         (self.feed('res5a_branch2a_roipooling')
-             .conv(1, 1, 2048, 2, 2, biased=False, relu=False, name='res5a_branch1',padding='VALID')
-             .batch_normalization(name='bn5a_branch1',is_training=False,relu=False))
+             .conv(1,1,2048,2,2,biased=False, relu=False, name='res5a_branch1', padding='VALID')
+             .batch_normalization(name='bn5a_branch1',is_training=True,relu=False))
 
-
-        (self.feed('bn5a_branch1',
-                   'bn5a_branch2c')
+        (self.feed('bn5a_branch2c','bn5a_branch1')
              .add(name='res5a')
              .relu(name='res5a_relu')
              .conv(1, 1, 512, 1, 1, biased=False, relu=False, name='res5b_branch2a')
-             .batch_normalization(relu=True, name='bn5b_branch2a',is_training=False)
+             .batch_normalization(relu=True, name='bn5b_branch2a',is_training=True)
              .conv(3, 3, 512, 1, 1, biased=False, relu=False, name='res5b_branch2b')
-             .batch_normalization(relu=True, name='bn5b_branch2b',is_training=False)
+             .batch_normalization(relu=True, name='bn5b_branch2b',is_training=True)
              .conv(1, 1, 2048, 1, 1, biased=False, relu=False, name='res5b_branch2c')
-             .batch_normalization(name='bn5b_branch2c',is_training=False,relu=False))
-
-        (self.feed('res5a_relu',
+             .batch_normalization(name='bn5b_branch2c',is_training=True,relu=False))
+        #pdb.set_trace()
+        (self.feed('res5a_relu', 
                    'bn5b_branch2c')
              .add(name='res5b')
              .relu(name='res5b_relu')
              .conv(1, 1, 512, 1, 1, biased=False, relu=False, name='res5c_branch2a')
-             .batch_normalization(relu=True, name='bn5c_branch2a',is_training=False)
+             .batch_normalization(relu=True, name='bn5c_branch2a',is_training=True)
              .conv(3, 3, 512, 1, 1, biased=False, relu=False, name='res5c_branch2b')
-             .batch_normalization(relu=True, name='bn5c_branch2b',is_training=False)
+             .batch_normalization(relu=True, name='bn5c_branch2b',is_training=True)
              .conv(1, 1, 2048, 1, 1, biased=False, relu=False, name='res5c_branch2c')
-             .batch_normalization(name='bn5c_branch2c',is_training=False,relu=False))
-
+             .batch_normalization(name='bn5c_branch2c',is_training=True,relu=False))
+        #pdb.set_trace()
         (self.feed('res5b_relu',
-                   'bn5c_branch2c')
+        	       'bn5c_branch2c')
              .add(name='res5c')
              .relu(name='res5c_relu')
-             .avg_pool(4, 4, 1, 1, padding='VALID', name='pool5')
-             .fc(1000, relu=False, name='fc1000')
-             .softmax(name='prob'))
+             .fc(n_classes, relu=False, name='cls_score')
+             .softmax(name='cls_prob'))
+
+        (self.feed('res5c_relu')
+             .fc(n_classes*4, relu=False, name='bbox_pred'))
 
 
     def _build_base(self, input_img):

@@ -45,7 +45,8 @@ def import_pretrained_models_from_ckpt( sess, pretrained_model):
     ## laoding the pre-trained model
     restorer.restore(sess, pretrained_model)
     ## fix some variables
-    if not bool(variables_to_fix):
+    if bool(variables_to_fix):
+	print("restore the fixed variable")
         fix_variables(sess, pretrained_model)
     #raise NotImplementedError
 
@@ -79,7 +80,7 @@ def get_variables_in_checkpoint_file(pretrained_model):
             print("It's likely that your checkpoint file has been compressed with SNAPPY" )
 
 
-  def fix_variables(sess, pretrained_model):
+def fix_variables(sess, pretrained_model):
     print('Fix Resnet V1 layers..')
     with tf.variable_scope('resnet_v1_101') as scope:
       with tf.device("/cpu:0"):
