@@ -11,7 +11,7 @@ imdb=kittivoc_train
 weights=./data/pretrain_model/resnet_v1_101.ckpt
 network=Resnet101_train
 gpu=1
-restore=0
+restore=1
 
 output_dir=./output/faster_rcnn_kitti/kittivoc_train/anchor_55_scale_11_aspect_ratio_5
 exe=python

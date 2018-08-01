@@ -2,10 +2,10 @@
 
 train_script=./faster_rcnn/test_net.py
 
-export CUDA_VISIBLE_DEVICES=0
+export CUDA_VISIBLE_DEVICES=1
 iters_max=150000  ## this one must be consistent with number in train file
 interval=5000    ## must be the same in faster_rcnn_kitti.yml file
-name_anchors=anchor_75_scale_25_aspect_ratio_3
+name_anchors=anchor_55_scale_11_aspect_ratio_5
 
 
 back_slash=/
@@ -14,7 +14,7 @@ postfix_file=.txt
 cfg=./experiments/cfgs/faster_rcnn_kitti.yml
 imdb=kittivoc_test
 #weights=./output/faster_rcnn_kitti/kittivoc_train/VGGnet_fast_rcnn_iter_95000.ckpt
-network=VGGnet_test
+network=Resnet101_test # VGGnet_test
 wait1=0
 gpu=0
 exe=python
@@ -29,7 +29,8 @@ postfix_weight=.ckpt
 ### output of training model to generate the prediction txt files
 string2_1=./output/faster_rcnn_kitti/kittivoc_test/
 string2_2=/VGGnet_fast_rcnn_iter_
-label_dir=/home/b/Kitti/testing/label_2/
+label_dir=/home/hk/benz/data/testing/label_2/
+#label_dir=/home/b/Kitti/testing/label_2/
 prefix_prediction=$string2_1$name_anchors$string2_2
 
 ### the output of results runing evaluation code of kitti official one
