@@ -36,14 +36,13 @@ def _get_image_blob(im):
 
     processed_ims = []
     im_scale_factors = []
-    target_size = cfg.TEST.SCALES
-    
-    if True:  #for target_size in cfg.TEST.SCALES:  ## we just process one scale
-        im_scale = float(target_size[0]) / float(im_size_min)
+
+    for target_size in cfg.TEST.SCALES:
+        im_scale = float(target_size) / float(im_size_min)
         # Prevent the biggest axis from being more than MAX_SIZE
         if np.round(im_scale * im_size_max) > cfg.TEST.MAX_SIZE:
             im_scale = float(cfg.TEST.MAX_SIZE) / float(im_size_max)
-        im = cv2.resize(im_orig, (target_size[1], target_size[0]), fx=0, fy=0,   ## im_scale
+        im = cv2.resize(im_orig, None, None, fx=im_scale, fy=im_scale,
                         interpolation=cv2.INTER_LINEAR)
         im_scale_factors.append(im_scale)
         processed_ims.append(im)

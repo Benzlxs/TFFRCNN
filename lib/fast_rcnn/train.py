@@ -17,7 +17,6 @@ from ..roi_data_layer.layer import RoIDataLayer
 from ..utils.timer import Timer
 from ..gt_data_layer import roidb as gdl_roidb
 from ..roi_data_layer import roidb as rdl_roidb
-from ..networks import load_pretrained_model
 
 # >>>> obsolete, because it depends on sth outside of this project
 from ..fast_rcnn.config import cfg
@@ -153,14 +152,12 @@ class SolverWrapper(object):
 
         # load vgg16
         if self.pretrained_model is not None and not restore:
-	    # import pudb;pudb.set_trace()
             try:
-                print ('Loading pretrained model weights from {:s}').format(self.pretrained_model)
-                #self.net.load(self.pretrained_model, sess, True)
-                ## load pretrained models
-                load_pretrained_model.import_pretrained_models_from_ckpt( sess , self.pretrained_model)  ##benz
+                print ('Loading pretrained model '
+                   'weights from {:s}').format(self.pretrained_model)
+                self.net.load(self.pretrained_model, sess, True)
             except:
-                raise Exception('Check your pretrained model {:s}'.format(self.pretrained_model))
+                raise 'Check your pretrained model {:s}'.format(self.pretrained_model)
 
         # resuming a trainer
         if restore:
@@ -173,7 +170,7 @@ class SolverWrapper(object):
                 sess.run(global_step.assign(restore_iter))
                 print 'done'
             except:
-                raise Exception('Check your pretrained {:s}'.format(ckpt.model_checkpoint_path))
+                raise 'Check your pretrained {:s}'.format(ckpt.model_checkpoint_path)
 
         last_snapshot_iter = -1
         timer = Timer()
@@ -398,7 +395,7 @@ def train_net(network, imdb, roidb, output_dir, log_dir, pretrained_model=None, 
 
     config = tf.ConfigProto(allow_soft_placement=True)
     config.gpu_options.allocator_type = 'BFC'
-    config.gpu_options.per_process_gpu_memory_fraction = 0.9
+    config.gpu_options.per_process_gpu_memory_fraction = 0.80
     with tf.Session(config=config) as sess:
         sw = SolverWrapper(sess, network, imdb, roidb, output_dir, logdir= log_dir, pretrained_model=pretrained_model)
         print 'Solving...'

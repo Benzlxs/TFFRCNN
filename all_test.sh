@@ -3,9 +3,10 @@
 train_script=./faster_rcnn/test_net.py
 
 export CUDA_VISIBLE_DEVICES=0
+
 iters_max=150000  ## this one must be consistent with number in train file
 interval=5000    ## must be the same in faster_rcnn_kitti.yml file
-name_anchors=anchor_75_scale_25_aspect_ratio_3
+name_anchors=anchor_84_scale_28_aspect_ratio_3
 
 
 back_slash=/

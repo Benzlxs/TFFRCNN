@@ -8,6 +8,7 @@
 import numpy as np
 from ..fast_rcnn.config import cfg
 
+
 # Verify that we compute the same anchors as Shaoqing's matlab implementation:
 #
 #    >> load output/rpn_cachedir/faster_rcnn_VOC2007_ZF_stage1_rpn/anchors.mat
@@ -35,8 +36,8 @@ from ..fast_rcnn.config import cfg
 #       [ -79., -167.,   96.,  184.],
 #       [-167., -343.,  184.,  360.]])
 
-def generate_anchors(base_size=16, ratios=cfg.RATIOS,
-                     scales= cfg.ANCHOR_SCALES): # np.arange(1,23,4.5)):     #scales=2**np.arange(3, 6)):
+def generate_anchors(base_size=16, ratios= cfg.RATIOS, #[ 0.3, 0.5, 1.0, 2.0, 3.5 ],
+                     scales= cfg.ANCHOR_SCALES ):     #scales=2**np.arange(3, 6)):
     """
     Generate anchor (reference) windows by enumerating aspect ratios X
     scales wrt a reference (0, 0, 15, 15) window.

@@ -8,44 +8,11 @@
 import tensorflow as tf
 from .network import Network
 from ..fast_rcnn.config import cfg
-import tensorflow.contrib.slim as slim
-from tensorflow.contrib.slim import arg_scope
-from tensorflow.contrib.slim.python.slim.nets import resnet_utils
-from tensorflow.contrib.slim.python.slim.nets import resnet_v1
-from tensorflow.contrib.slim.python.slim.nets.resnet_v1 import resnet_v1_block
-
-
-slim = tf.contrib.slim
-
-def resnet_arg_scope(is_training=True,
-                     weight_decay=0.0001,
-                     batch_norm_decay=0.997,
-                     batch_norm_epsilon=1e-5,
-                     batch_norm_scale=True):
-    batch_norm_params = {
-        'is_training': False,
-        'decay': batch_norm_decay,
-        'epsilon': batch_norm_epsilon,
-        'scale': batch_norm_scale,
-        'trainable': False,
-        'updates_collections': tf.GraphKeys.UPDATE_OPS
-    }
-    with arg_scope(
-        [slim.conv2d],
-        weights_regularizer=slim.l2_regularizer( weight_decay ),
-        weights_initializer=slim.variance_scaling_initializer(),
-        trainable=is_training,
-        activation_fn=tf.nn.relu,
-        normalizer_fn=slim.batch_norm,
-        normalizer_params=batch_norm_params):
-        with arg_scope([slim.batch_norm], **batch_norm_params) as arg_sc:
-            return arg_sc
-
 
 class Resnet101_train(Network):
     def __init__(self, trainable=True):
         self.inputs = []
-        self.data = tf.placeholder(tf.float32, shape=[None, cfg.TRAIN.IMAGE_SIZE[0], cfg.TRAIN.IMAGE_SIZE[1] , 3], name='data')
+        self.data = tf.placeholder(tf.float32, shape=[None, None, None, 3], name='data')
         self.im_info = tf.placeholder(tf.float32, shape=[None, 3], name='im_info')
         self.gt_boxes = tf.placeholder(tf.float32, shape=[None, 5], name='gt_boxes')
         self.gt_ishard = tf.placeholder(tf.int32, shape=[None], name='gt_ishard')
@@ -61,27 +28,366 @@ class Resnet101_train(Network):
         n_classes = cfg.NCLASSES
         # anchor_scales = [8, 16, 32]
         anchor_scales = cfg.ANCHOR_SCALES
-        _feat_stride = [4, ]
-        num_anchors=cfg.ANCHOR_NUM
-	# import pudb; pudb.set_trace()
-        self.layers['res4b22_relu'] = self.build(self.data, True)
+        _feat_stride = [16, ]
 
+        (self.feed('data')
+             .conv(7, 7, 64, 2, 2, biased=False, relu=False, name='conv1')
+             .batch_normalization(relu=True, name='bn_conv1', is_training=False)
+             .max_pool(3, 3, 2, 2, padding='VALID',name='pool1')
+             .conv(1, 1, 256, 1, 1, biased=False, relu=False, name='res2a_branch1')
+             .batch_normalization(name='bn2a_branch1',is_training=False,relu=False))
 
+        (self.feed('pool1')
+             .conv(1, 1, 64, 1, 1, biased=False, relu=False, name='res2a_branch2a')
+             .batch_normalization(relu=True, name='bn2a_branch2a',is_training=False)
+             .conv(3, 3, 64, 1, 1, biased=False, relu=False, name='res2a_branch2b')
+             .batch_normalization(relu=True, name='bn2a_branch2b',is_training=False)
+             .conv(1, 1, 256, 1, 1, biased=False, relu=False, name='res2a_branch2c')
+             .batch_normalization(name='bn2a_branch2c',is_training=False,relu=False))
 
-        #========= RPN ============
-        # (self.feed('res4b22_relu')
+        (self.feed('bn2a_branch1', 
+                   'bn2a_branch2c')
+             .add(name='res2a')
+             .relu(name='res2a_relu')
+             .conv(1, 1, 64, 1, 1, biased=False, relu=False, name='res2b_branch2a')
+             .batch_normalization(relu=True, name='bn2b_branch2a',is_training=False)
+             .conv(3, 3, 64, 1, 1, biased=False, relu=False, name='res2b_branch2b')
+             .batch_normalization(relu=True, name='bn2b_branch2b',is_training=False)
+             .conv(1, 1, 256, 1, 1, biased=False, relu=False, name='res2b_branch2c')
+             .batch_normalization(name='bn2b_branch2c',is_training=False,relu=False))
+
+        (self.feed('res2a_relu', 
+                   'bn2b_branch2c')
+             .add(name='res2b')
+             .relu(name='res2b_relu')
+             .conv(1, 1, 64, 1, 1, biased=False, relu=False, name='res2c_branch2a')
+             .batch_normalization(relu=True, name='bn2c_branch2a',is_training=False)
+             .conv(3, 3, 64, 1, 1, biased=False, relu=False, name='res2c_branch2b')
+             .batch_normalization(relu=True, name='bn2c_branch2b',is_training=False)
+             .conv(1, 1, 256, 1, 1, biased=False, relu=False, name='res2c_branch2c')
+             .batch_normalization(name='bn2c_branch2c',is_training=False,relu=False))
+
+        (self.feed('res2b_relu', 
+                   'bn2c_branch2c')
+             .add(name='res2c')
+             .relu(name='res2c_relu')
+             .conv(1, 1, 512, 2, 2, biased=False, relu=False, name='res3a_branch1',padding='VALID')
+             .batch_normalization(name='bn3a_branch1',is_training=False,relu=False))
+
+        (self.feed('res2c_relu')
+             .conv(1, 1, 128, 2, 2, biased=False, relu=False, name='res3a_branch2a',padding='VALID')
+             .batch_normalization(relu=True, name='bn3a_branch2a',is_training=False)
+             .conv(3, 3, 128, 1, 1, biased=False, relu=False, name='res3a_branch2b')
+             .batch_normalization(relu=True, name='bn3a_branch2b',is_training=False)
+             .conv(1, 1, 512, 1, 1, biased=False, relu=False, name='res3a_branch2c')
+             .batch_normalization(name='bn3a_branch2c',is_training=False,relu=False))
+
+        (self.feed('bn3a_branch1', 
+                   'bn3a_branch2c')
+             .add(name='res3a')
+             .relu(name='res3a_relu')
+             .conv(1, 1, 128, 1, 1, biased=False, relu=False, name='res3b1_branch2a')
+             .batch_normalization(relu=True, name='bn3b1_branch2a',is_training=False)
+             .conv(3, 3, 128, 1, 1, biased=False, relu=False, name='res3b1_branch2b')
+             .batch_normalization(relu=True, name='bn3b1_branch2b',is_training=False)
+             .conv(1, 1, 512, 1, 1, biased=False, relu=False, name='res3b1_branch2c')
+             .batch_normalization(name='bn3b1_branch2c',is_training=False,relu=False))
+
+        (self.feed('res3a_relu', 
+                   'bn3b1_branch2c')
+             .add(name='res3b1')
+             .relu(name='res3b1_relu')
+             .conv(1, 1, 128, 1, 1, biased=False, relu=False, name='res3b2_branch2a')
+             .batch_normalization(relu=True, name='bn3b2_branch2a',is_training=False)
+             .conv(3, 3, 128, 1, 1, biased=False, relu=False, name='res3b2_branch2b')
+             .batch_normalization(relu=True, name='bn3b2_branch2b',is_training=False)
+             .conv(1, 1, 512, 1, 1, biased=False, relu=False, name='res3b2_branch2c')
+             .batch_normalization(name='bn3b2_branch2c',is_training=False,relu=False))
+
+        (self.feed('res3b1_relu', 
+                   'bn3b2_branch2c')
+             .add(name='res3b2')
+             .relu(name='res3b2_relu')
+             .conv(1, 1, 128, 1, 1, biased=False, relu=False, name='res3b3_branch2a')
+             .batch_normalization(relu=True, name='bn3b3_branch2a',is_training=False)
+             .conv(3, 3, 128, 1, 1, biased=False, relu=False, name='res3b3_branch2b')
+             .batch_normalization(relu=True, name='bn3b3_branch2b',is_training=False)
+             .conv(1, 1, 512, 1, 1, biased=False, relu=False, name='res3b3_branch2c')
+             .batch_normalization(name='bn3b3_branch2c',is_training=False,relu=False))
+
+        (self.feed('res3b2_relu', 
+                   'bn3b3_branch2c')
+             .add(name='res3b3')
+             .relu(name='res3b3_relu')
+             .conv(1, 1, 1024, 2, 2, biased=False, relu=False, name='res4a_branch1',padding='VALID')
+             .batch_normalization(name='bn4a_branch1',is_training=False,relu=False))
+
+        (self.feed('res3b3_relu')
+             .conv(1, 1, 256, 2, 2, biased=False, relu=False, name='res4a_branch2a',padding='VALID')
+             .batch_normalization(relu=True, name='bn4a_branch2a',is_training=False)
+             .conv(3, 3, 256, 1, 1, biased=False, relu=False, name='res4a_branch2b')
+             .batch_normalization(relu=True, name='bn4a_branch2b',is_training=False)
+             .conv(1, 1, 1024, 1, 1, biased=False, relu=False, name='res4a_branch2c')
+             .batch_normalization(name='bn4a_branch2c',is_training=False,relu=False))
+
+        (self.feed('bn4a_branch1', 
+                   'bn4a_branch2c')
+             .add(name='res4a')
+             .relu(name='res4a_relu')
+             .conv(1, 1, 256, 1, 1, biased=False, relu=False, name='res4b1_branch2a')
+             .batch_normalization(relu=True, name='bn4b1_branch2a',is_training=False)
+             .conv(3, 3, 256, 1, 1, biased=False, relu=False, name='res4b1_branch2b')
+             .batch_normalization(relu=True, name='bn4b1_branch2b',is_training=False)
+             .conv(1, 1, 1024, 1, 1, biased=False, relu=False, name='res4b1_branch2c')
+             .batch_normalization(name='bn4b1_branch2c',is_training=False,relu=False))
+
+        (self.feed('res4a_relu', 
+                   'bn4b1_branch2c')
+             .add(name='res4b1')
+             .relu(name='res4b1_relu')
+             .conv(1, 1, 256, 1, 1, biased=False, relu=False, name='res4b2_branch2a')
+             .batch_normalization(relu=True, name='bn4b2_branch2a',is_training=False)
+             .conv(3, 3, 256, 1, 1, biased=False, relu=False, name='res4b2_branch2b')
+             .batch_normalization(relu=True, name='bn4b2_branch2b',is_training=False)
+             .conv(1, 1, 1024, 1, 1, biased=False, relu=False, name='res4b2_branch2c')
+             .batch_normalization(name='bn4b2_branch2c',is_training=False,relu=False))
+
+        (self.feed('res4b1_relu', 
+                   'bn4b2_branch2c')
+             .add(name='res4b2')
+             .relu(name='res4b2_relu')
+             .conv(1, 1, 256, 1, 1, biased=False, relu=False, name='res4b3_branch2a')
+             .batch_normalization(relu=True, name='bn4b3_branch2a',is_training=False)
+             .conv(3, 3, 256, 1, 1, biased=False, relu=False, name='res4b3_branch2b')
+             .batch_normalization(relu=True, name='bn4b3_branch2b',is_training=False)
+             .conv(1, 1, 1024, 1, 1, biased=False, relu=False, name='res4b3_branch2c')
+             .batch_normalization(name='bn4b3_branch2c',is_training=False,relu=False))
+
+        (self.feed('res4b2_relu', 
+                   'bn4b3_branch2c')
+             .add(name='res4b3')
+             .relu(name='res4b3_relu')
+             .conv(1, 1, 256, 1, 1, biased=False, relu=False, name='res4b4_branch2a')
+             .batch_normalization(relu=True, name='bn4b4_branch2a',is_training=False)
+             .conv(3, 3, 256, 1, 1, biased=False, relu=False, name='res4b4_branch2b')
+             .batch_normalization(relu=True, name='bn4b4_branch2b',is_training=False)
+             .conv(1, 1, 1024, 1, 1, biased=False, relu=False, name='res4b4_branch2c')
+             .batch_normalization(name='bn4b4_branch2c',is_training=False,relu=False))
+
+        (self.feed('res4b3_relu', 
+                   'bn4b4_branch2c')
+             .add(name='res4b4')
+             .relu(name='res4b4_relu')
+             .conv(1, 1, 256, 1, 1, biased=False, relu=False, name='res4b5_branch2a')
+             .batch_normalization(relu=True, name='bn4b5_branch2a',is_training=False)
+             .conv(3, 3, 256, 1, 1, biased=False, relu=False, name='res4b5_branch2b')
+             .batch_normalization(relu=True, name='bn4b5_branch2b',is_training=False)
+             .conv(1, 1, 1024, 1, 1, biased=False, relu=False, name='res4b5_branch2c')
+             .batch_normalization(name='bn4b5_branch2c',is_training=False,relu=False))
+
+        (self.feed('res4b4_relu', 
+                   'bn4b5_branch2c')
+             .add(name='res4b5')
+             .relu(name='res4b5_relu')
+             .conv(1, 1, 256, 1, 1, biased=False, relu=False, name='res4b6_branch2a')
+             .batch_normalization(relu=True, name='bn4b6_branch2a',is_training=False)
+             .conv(3, 3, 256, 1, 1, biased=False, relu=False, name='res4b6_branch2b')
+             .batch_normalization(relu=True, name='bn4b6_branch2b',is_training=False)
+             .conv(1, 1, 1024, 1, 1, biased=False, relu=False, name='res4b6_branch2c')
+             .batch_normalization(name='bn4b6_branch2c',is_training=False,relu=False))
+
+        (self.feed('res4b5_relu', 
+                   'bn4b6_branch2c')
+             .add(name='res4b6')
+             .relu(name='res4b6_relu')
+             .conv(1, 1, 256, 1, 1, biased=False, relu=False, name='res4b7_branch2a')
+             .batch_normalization(relu=True, name='bn4b7_branch2a',is_training=False)
+             .conv(3, 3, 256, 1, 1, biased=False, relu=False, name='res4b7_branch2b')
+             .batch_normalization(relu=True, name='bn4b7_branch2b',is_training=False)
+             .conv(1, 1, 1024, 1, 1, biased=False, relu=False, name='res4b7_branch2c')
+             .batch_normalization(name='bn4b7_branch2c',is_training=False,relu=False))
+
+        (self.feed('res4b6_relu', 
+                   'bn4b7_branch2c')
+             .add(name='res4b7')
+             .relu(name='res4b7_relu')
+             .conv(1, 1, 256, 1, 1, biased=False, relu=False, name='res4b8_branch2a')
+             .batch_normalization(relu=True, name='bn4b8_branch2a',is_training=False)
+             .conv(3, 3, 256, 1, 1, biased=False, relu=False, name='res4b8_branch2b')
+             .batch_normalization(relu=True, name='bn4b8_branch2b',is_training=False)
+             .conv(1, 1, 1024, 1, 1, biased=False, relu=False, name='res4b8_branch2c')
+             .batch_normalization(name='bn4b8_branch2c',is_training=False,relu=False))
+
+        (self.feed('res4b7_relu', 
+                   'bn4b8_branch2c')
+             .add(name='res4b8')
+             .relu(name='res4b8_relu')
+             .conv(1, 1, 256, 1, 1, biased=False, relu=False, name='res4b9_branch2a')
+             .batch_normalization(relu=True, name='bn4b9_branch2a',is_training=False)
+             .conv(3, 3, 256, 1, 1, biased=False, relu=False, name='res4b9_branch2b')
+             .batch_normalization(relu=True, name='bn4b9_branch2b',is_training=False)
+             .conv(1, 1, 1024, 1, 1, biased=False, relu=False, name='res4b9_branch2c')
+             .batch_normalization(name='bn4b9_branch2c',is_training=False,relu=False))
+
+        (self.feed('res4b8_relu', 
+                   'bn4b9_branch2c')
+             .add(name='res4b9')
+             .relu(name='res4b9_relu')
+             .conv(1, 1, 256, 1, 1, biased=False, relu=False, name='res4b10_branch2a')
+             .batch_normalization(relu=True, name='bn4b10_branch2a',is_training=False)
+             .conv(3, 3, 256, 1, 1, biased=False, relu=False, name='res4b10_branch2b')
+             .batch_normalization(relu=True, name='bn4b10_branch2b',is_training=False)
+             .conv(1, 1, 1024, 1, 1, biased=False, relu=False, name='res4b10_branch2c')
+             .batch_normalization(name='bn4b10_branch2c',is_training=False,relu=False))
+
+        (self.feed('res4b9_relu', 
+                   'bn4b10_branch2c')
+             .add(name='res4b10')
+             .relu(name='res4b10_relu')
+             .conv(1, 1, 256, 1, 1, biased=False, relu=False, name='res4b11_branch2a')
+             .batch_normalization(relu=True, name='bn4b11_branch2a',is_training=False)
+             .conv(3, 3, 256, 1, 1, biased=False, relu=False, name='res4b11_branch2b')
+             .batch_normalization(relu=True, name='bn4b11_branch2b',is_training=False)
+             .conv(1, 1, 1024, 1, 1, biased=False, relu=False, name='res4b11_branch2c')
+             .batch_normalization(name='bn4b11_branch2c',is_training=False,relu=False))
+
+        (self.feed('res4b10_relu', 
+                   'bn4b11_branch2c')
+             .add(name='res4b11')
+             .relu(name='res4b11_relu')
+             .conv(1, 1, 256, 1, 1, biased=False, relu=False, name='res4b12_branch2a')
+             .batch_normalization(relu=True, name='bn4b12_branch2a',is_training=False)
+             .conv(3, 3, 256, 1, 1, biased=False, relu=False, name='res4b12_branch2b')
+             .batch_normalization(relu=True, name='bn4b12_branch2b',is_training=False)
+             .conv(1, 1, 1024, 1, 1, biased=False, relu=False, name='res4b12_branch2c')
+             .batch_normalization(name='bn4b12_branch2c',is_training=False,relu=False))
+
+        (self.feed('res4b11_relu', 
+                   'bn4b12_branch2c')
+             .add(name='res4b12')
+             .relu(name='res4b12_relu')
+             .conv(1, 1, 256, 1, 1, biased=False, relu=False, name='res4b13_branch2a')
+             .batch_normalization(relu=True, name='bn4b13_branch2a',is_training=False)
+             .conv(3, 3, 256, 1, 1, biased=False, relu=False, name='res4b13_branch2b')
+             .batch_normalization(relu=True, name='bn4b13_branch2b',is_training=False)
+             .conv(1, 1, 1024, 1, 1, biased=False, relu=False, name='res4b13_branch2c')
+             .batch_normalization(name='bn4b13_branch2c',is_training=False,relu=False))
+
+        (self.feed('res4b12_relu', 
+                   'bn4b13_branch2c')
+             .add(name='res4b13')
+             .relu(name='res4b13_relu')
+             .conv(1, 1, 256, 1, 1, biased=False, relu=False, name='res4b14_branch2a')
+             .batch_normalization(relu=True, name='bn4b14_branch2a',is_training=False)
+             .conv(3, 3, 256, 1, 1, biased=False, relu=False, name='res4b14_branch2b')
+             .batch_normalization(relu=True, name='bn4b14_branch2b',is_training=False)
+             .conv(1, 1, 1024, 1, 1, biased=False, relu=False, name='res4b14_branch2c')
+             .batch_normalization(name='bn4b14_branch2c',is_training=False,relu=False))
+
+        (self.feed('res4b13_relu', 
+                   'bn4b14_branch2c')
+             .add(name='res4b14')
+             .relu(name='res4b14_relu')
+             .conv(1, 1, 256, 1, 1, biased=False, relu=False, name='res4b15_branch2a')
+             .batch_normalization(relu=True, name='bn4b15_branch2a',is_training=False)
+             .conv(3, 3, 256, 1, 1, biased=False, relu=False, name='res4b15_branch2b')
+             .batch_normalization(relu=True, name='bn4b15_branch2b',is_training=False)
+             .conv(1, 1, 1024, 1, 1, biased=False, relu=False, name='res4b15_branch2c')
+             .batch_normalization(name='bn4b15_branch2c',is_training=False,relu=False))
+
+        (self.feed('res4b14_relu', 
+                   'bn4b15_branch2c')
+             .add(name='res4b15')
+             .relu(name='res4b15_relu')
+             .conv(1, 1, 256, 1, 1, biased=False, relu=False, name='res4b16_branch2a')
+             .batch_normalization(relu=True, name='bn4b16_branch2a',is_training=False)
+             .conv(3, 3, 256, 1, 1, biased=False, relu=False, name='res4b16_branch2b')
+             .batch_normalization(relu=True, name='bn4b16_branch2b',is_training=False)
+             .conv(1, 1, 1024, 1, 1, biased=False, relu=False, name='res4b16_branch2c')
+             .batch_normalization(name='bn4b16_branch2c',is_training=False,relu=False))
+
+        (self.feed('res4b15_relu', 
+                   'bn4b16_branch2c')
+             .add(name='res4b16')
+             .relu(name='res4b16_relu')
+             .conv(1, 1, 256, 1, 1, biased=False, relu=False, name='res4b17_branch2a')
+             .batch_normalization(relu=True, name='bn4b17_branch2a',is_training=False)
+             .conv(3, 3, 256, 1, 1, biased=False, relu=False, name='res4b17_branch2b')
+             .batch_normalization(relu=True, name='bn4b17_branch2b',is_training=False)
+             .conv(1, 1, 1024, 1, 1, biased=False, relu=False, name='res4b17_branch2c')
+             .batch_normalization(name='bn4b17_branch2c',is_training=False,relu=False))
+
+        (self.feed('res4b16_relu', 
+                   'bn4b17_branch2c')
+             .add(name='res4b17')
+             .relu(name='res4b17_relu')
+             .conv(1, 1, 256, 1, 1, biased=False, relu=False, name='res4b18_branch2a')
+             .batch_normalization(relu=True, name='bn4b18_branch2a',is_training=False)
+             .conv(3, 3, 256, 1, 1, biased=False, relu=False, name='res4b18_branch2b')
+             .batch_normalization(relu=True, name='bn4b18_branch2b',is_training=False)
+             .conv(1, 1, 1024, 1, 1, biased=False, relu=False, name='res4b18_branch2c')
+             .batch_normalization(name='bn4b18_branch2c',is_training=False,relu=False))
+
+        (self.feed('res4b17_relu', 
+                   'bn4b18_branch2c')
+             .add(name='res4b18')
+             .relu(name='res4b18_relu')
+             .conv(1, 1, 256, 1, 1, biased=False, relu=False, name='res4b19_branch2a')
+             .batch_normalization(relu=True, name='bn4b19_branch2a',is_training=False)
+             .conv(3, 3, 256, 1, 1, biased=False, relu=False, name='res4b19_branch2b')
+             .batch_normalization(relu=True, name='bn4b19_branch2b',is_training=False)
+             .conv(1, 1, 1024, 1, 1, biased=False, relu=False, name='res4b19_branch2c')
+             .batch_normalization(name='bn4b19_branch2c',is_training=False,relu=False))
+
+        (self.feed('res4b18_relu', 
+                   'bn4b19_branch2c')
+             .add(name='res4b19')
+             .relu(name='res4b19_relu')
+             .conv(1, 1, 256, 1, 1, biased=False, relu=False, name='res4b20_branch2a')
+             .batch_normalization(relu=True, name='bn4b20_branch2a',is_training=False)
+             .conv(3, 3, 256, 1, 1, biased=False, relu=False, name='res4b20_branch2b')
+             .batch_normalization(relu=True, name='bn4b20_branch2b',is_training=False)
+             .conv(1, 1, 1024, 1, 1, biased=False, relu=False, name='res4b20_branch2c')
+             .batch_normalization(name='bn4b20_branch2c',is_training=False,relu=False))
+
+        (self.feed('res4b19_relu', 
+                   'bn4b20_branch2c')
+             .add(name='res4b20')
+             .relu(name='res4b20_relu')
+             .conv(1, 1, 256, 1, 1, biased=False, relu=False, name='res4b21_branch2a')
+             .batch_normalization(relu=True, name='bn4b21_branch2a',is_training=False)
+             .conv(3, 3, 256, 1, 1, biased=False, relu=False, name='res4b21_branch2b')
+             .batch_normalization(relu=True, name='bn4b21_branch2b',is_training=False)
+             .conv(1, 1, 1024, 1, 1, biased=False, relu=False, name='res4b21_branch2c')
+             .batch_normalization(name='bn4b21_branch2c',is_training=False,relu=False))
+
+        (self.feed('res4b20_relu', 
+                   'bn4b21_branch2c')
+             .add(name='res4b21')
+             .relu(name='res4b21_relu')
+             .conv(1, 1, 256, 1, 1, biased=False, relu=False, name='res4b22_branch2a')
+             .batch_normalization(relu=True, name='bn4b22_branch2a',is_training=False)
+             .conv(3, 3, 256, 1, 1, biased=False, relu=False, name='res4b22_branch2b')
+             .batch_normalization(relu=True, name='bn4b22_branch2b',is_training=False)
+             .conv(1, 1, 1024, 1, 1, biased=False, relu=False, name='res4b22_branch2c')
+             .batch_normalization(name='bn4b22_branch2c',is_training=False,relu=False))
+
+        (self.feed('res4b21_relu', 
+                   'bn4b22_branch2c')
+             .add(name='res4b22')
+             .relu(name='res4b22_relu'))
 
         #========= RPN ============
         (self.feed('res4b22_relu')
              .conv(3,3,512,1,1,name='rpn_conv/3x3')
-             .conv(1,1, num_anchors*2 ,1 , 1, padding='VALID', relu = False, name='rpn_cls_score'))
+             .conv(1,1,len(anchor_scales)*3*2 ,1 , 1, padding='VALID', relu = False, name='rpn_cls_score'))
   
         (self.feed('rpn_cls_score', 'gt_boxes', 'gt_ishard', 'dontcare_areas', 'im_info')
              .anchor_target_layer(_feat_stride, anchor_scales, name = 'rpn-data' ))
         # Loss of rpn_cls & rpn_boxes
 
         (self.feed('rpn_conv/3x3')
-             .conv(1,1, num_anchors*4, 1, 1, padding='VALID', relu = False, name='rpn_bbox_pred'))
+             .conv(1,1,len(anchor_scales)*3*4, 1, 1, padding='VALID', relu = False, name='rpn_bbox_pred'))
 
         #========= RoI Proposal ============
         (self.feed('rpn_cls_score')
@@ -89,7 +395,7 @@ class Resnet101_train(Network):
              .spatial_softmax(name='rpn_cls_prob'))
 
         (self.feed('rpn_cls_prob')
-             .spatial_reshape_layer( num_anchors*2, name = 'rpn_cls_prob_reshape'))
+             .spatial_reshape_layer(len(anchor_scales)*3*2, name = 'rpn_cls_prob_reshape'))
 
         (self.feed('rpn_cls_prob_reshape','rpn_bbox_pred','im_info')
              .proposal_layer(_feat_stride, anchor_scales, 'TRAIN',name = 'rpn_rois'))
@@ -97,168 +403,48 @@ class Resnet101_train(Network):
         (self.feed('rpn_rois','gt_boxes', 'gt_ishard', 'dontcare_areas')
              .proposal_target_layer(n_classes,name = 'roi-data'))
 
-        #========= RCNN ============        
+
+        #========= RCNN ============ 
         (self.feed('res4b22_relu','roi-data')
              .roi_pool(7,7,1.0/16,name='res5a_branch2a_roipooling')
-             .conv(1, 1, 512, 2, 2, biased=False, relu=False, name='res5a_branch2a', padding='VALID')
-             .batch_normalization(relu=True, name='bn5a_branch2a',is_training=True)
+             .conv(1, 1, 512, 2, 2, biased=False, relu=False, name='res5a_branch2a',padding='VALID')
+             .batch_normalization(relu=True, name='bn5a_branch2a',is_training=False)
              .conv(3, 3, 512, 1, 1, biased=False, relu=False, name='res5a_branch2b')
-             .batch_normalization(relu=True, name='bn5a_branch2b',is_training=True)  ## false
+             .batch_normalization(relu=True, name='bn5a_branch2b',is_training=False)
              .conv(1, 1, 2048, 1, 1, biased=False, relu=False, name='res5a_branch2c')
-             .batch_normalization(name='bn5a_branch2c',is_training=True,relu=False))
+             .batch_normalization(name='bn5a_branch2c',is_training=False,relu=False))
 
         (self.feed('res5a_branch2a_roipooling')
-             .conv(1,1,2048,2,2,biased=False, relu=False, name='res5a_branch1', padding='VALID')
-             .batch_normalization(name='bn5a_branch1',is_training=True,relu=False))
+             .conv(1, 1, 2048, 2, 2, biased=False, relu=False, name='res5a_branch1',padding='VALID')
+             .batch_normalization(name='bn5a_branch1',is_training=False,relu=False))
 
-        (self.feed('bn5a_branch2c','bn5a_branch1')
+
+        (self.feed('bn5a_branch1', 
+                   'bn5a_branch2c')
              .add(name='res5a')
              .relu(name='res5a_relu')
              .conv(1, 1, 512, 1, 1, biased=False, relu=False, name='res5b_branch2a')
-             .batch_normalization(relu=True, name='bn5b_branch2a',is_training=True)
+             .batch_normalization(relu=True, name='bn5b_branch2a',is_training=False)
              .conv(3, 3, 512, 1, 1, biased=False, relu=False, name='res5b_branch2b')
-             .batch_normalization(relu=True, name='bn5b_branch2b',is_training=True)
+             .batch_normalization(relu=True, name='bn5b_branch2b',is_training=False)
              .conv(1, 1, 2048, 1, 1, biased=False, relu=False, name='res5b_branch2c')
-             .batch_normalization(name='bn5b_branch2c',is_training=True,relu=False))
-        #pdb.set_trace()
+             .batch_normalization(name='bn5b_branch2c',is_training=False,relu=False))
+
         (self.feed('res5a_relu', 
                    'bn5b_branch2c')
              .add(name='res5b')
              .relu(name='res5b_relu')
              .conv(1, 1, 512, 1, 1, biased=False, relu=False, name='res5c_branch2a')
-             .batch_normalization(relu=True, name='bn5c_branch2a',is_training=True)
+             .batch_normalization(relu=True, name='bn5c_branch2a',is_training=False)
              .conv(3, 3, 512, 1, 1, biased=False, relu=False, name='res5c_branch2b')
-             .batch_normalization(relu=True, name='bn5c_branch2b',is_training=True)
+             .batch_normalization(relu=True, name='bn5c_branch2b',is_training=False)
              .conv(1, 1, 2048, 1, 1, biased=False, relu=False, name='res5c_branch2c')
-             .batch_normalization(name='bn5c_branch2c',is_training=True,relu=False))
-        #pdb.set_trace()
-        (self.feed('res5b_relu',
-        	       'bn5c_branch2c')
+             .batch_normalization(name='bn5c_branch2c',is_training=False,relu=False))
+
+        (self.feed('res5b_relu', 
+                   'bn5c_branch2c')
              .add(name='res5c')
              .relu(name='res5c_relu')
-             .fc(n_classes, relu=False, name='cls_score')
-             .softmax(name='cls_prob'))
-
-        (self.feed('res5c_relu')
-             .fc(n_classes*4, relu=False, name='bbox_pred'))
-
-
-    def _build_base(self, input_img):
-        with tf.variable_scope(self._scope, self._scope):
-            net = resnet_utils.conv2d_same( input_img, 64, 7, stride=2, scope='conv1')
-            net = tf.pad(net, [[0, 0], [1, 1], [1, 1], [0, 0]])
-            net = slim.max_pool2d(net, [3, 3], stride=2, padding='VALID', scope='pool1')
-
-        return net
-
-
-
-
-    def build(self,
-              inputs,
-              # input_pixel_size,
-              is_training,
-              scope='resnet_v1_101',
-              rpn_weight_decay=0.0001 ):  ## scope is important variable to set
-        """ resnet
-        args:
-            inputs: a tensor of size [batch_size, height, width, channels].
-            input_pixel_size: size of the input (H x W)
-            is_training: True for training, False for validation/testing.
-            scope: Optional scope for the variables.
-
-        Returns:
-            The last op containing the log predictions and end_points dict.
-        """
-        # res_config = self.config
-        fixed_block = cfg.fixed_block
-        self._scope = scope
-        rpn_weight_decay = cfg.rpn_weight_decay
-
-        ## backbone
-        with slim.arg_scope(resnet_arg_scope(is_training=False)):
-            net_base = self._build_base(inputs)
-
-
-        blocks = [resnet_v1_block('block1', base_depth=64, num_units=3, stride=2),
-                  resnet_v1_block('block2', base_depth=128, num_units=4, stride=2),
-                  resnet_v1_block('block3', base_depth=256, num_units=23, stride=2),   ##decreasing factor is 32
-                  resnet_v1_block('block4', base_depth=512, num_units=3, stride=1)]
-
-
-        with slim.arg_scope(resnet_arg_scope(is_training=False)):
-            net_conv1, net_dict1 = resnet_v1.resnet_v1(net_base,
-                                              blocks[0:fixed_block],
-                                              global_pool=False,
-                                              include_root_block=False,  ## no resue
-                                              scope=self._scope)
-
-        with slim.arg_scope(resnet_arg_scope(is_training=is_training)):
-            net_conv2, net_dict2 = resnet_v1.resnet_v1(net_conv1,
-                                              blocks[fixed_block:],
-                                              global_pool=False,
-                                              include_root_block=False,
-                                              scope=self._scope)
-
-        ## build feature maps
-        feature_maps_dict  = {
-            'C2': net_dict1['resnet_v1_101/block1/unit_2/bottleneck_v1'],
-            'C3': net_dict2['resnet_v1_101/block2/unit_3/bottleneck_v1'],
-            'C4': net_dict2['resnet_v1_101/block3/unit_22/bottleneck_v1'],
-            'C5': net_dict2['resnet_v1_101/block4']
-        }
-
-
-        ## build pyramid feature maps
-        feature_pyramid = {}
-
-        upsample_method = 'deconv'   ## put this setting into configuration file later
-
-        if upsample_method == 'deconv':
-            ## using deconvolution to build pyramid feature image
-            with tf.variable_scope('build_feature_pyramid'):
-                with slim.arg_scope([slim.conv2d], weights_regularizer=slim.l2_regularizer( rpn_weight_decay )):
-                     feature_pyramid['P5'] = slim.conv2d(feature_maps_dict['C5'],
-                                                        num_outputs=256,
-                                                        kernel_size=[1, 1],
-                                                        stride=1,
-                                                        scope='build_P5')
-                     ##p6 is down sample of p5
-                     for layer in range(4, 1, -1):
-                         p, c = feature_pyramid['P' + str(layer + 1)], feature_maps_dict['C' + str(layer)]
-
-                         up_sample = slim.conv2d_transpose(
-                                         p,
-                                         num_outputs=256 ,
-                                         kernel_size=[3, 3],
-                                         stride=2,
-                                         normalizer_fn=slim.batch_norm,
-                                         normalizer_params={
-                                             'is_training': is_training},
-                                         scope ='build_P%d/up_sampling_deconvolution' % layer)
-
-                         c = slim.conv2d(c,
-                                         num_outputs=256,
-                                         kernel_size=[1, 1],
-                                         stride=1,
-                                         normalizer_fn=slim.batch_norm,
-                                         normalizer_params={
-                                            'is_training': is_training },
-                                         scope='build_P%d/reduce_dimension' % layer)
-
-                         concat = tf.concat(
-                             (c, up_sample), axis=3, name='build_P%d/concate_layer' %layer)
-
-                         p = slim.conv2d(concat,
-                                         num_outputs=256,
-                                         kernel_size=[3, 3],
-                                         stride=1,
-                                         normalizer_fn=slim.batch_norm,
-                                         normalizer_params={
-                                             'is_training': is_training},
-                                         scope= 'build_P%d/for_feature_pyramid' % layer)
-
-                         feature_pyramid['P' + str(layer)] = p
-        return feature_pyramid['P2']
-
-
+             .avg_pool(4, 4, 1, 1, padding='VALID', name='pool5')
+             .fc(1000, relu=False, name='fc1000')
+             .softmax(name='prob'))
