@@ -35,60 +35,6 @@ Code is run to show how anchor number affect detection results,
 1. [VGG16 trained on ImageNet](https://drive.google.com/open?id=0ByuDEGFYmWsbNVF5eExySUtMZmM)
 
 
-
-### Training on Pascal VOC 2007
-
-1. Download the training, validation, test data and VOCdevkit
-
-    ```Shell
-    wget http://host.robots.ox.ac.uk/pascal/VOC/voc2007/VOCtrainval_06-Nov-2007.tar
-    wget http://host.robots.ox.ac.uk/pascal/VOC/voc2007/VOCtest_06-Nov-2007.tar
-    wget http://host.robots.ox.ac.uk/pascal/VOC/voc2007/VOCdevkit_08-Jun-2007.tar
-    ```
-
-2. Extract all of these tars into one directory named `VOCdevkit`
-
-    ```Shell
-    tar xvf VOCtrainval_06-Nov-2007.tar
-    tar xvf VOCtest_06-Nov-2007.tar
-    tar xvf VOCdevkit_08-Jun-2007.tar
-    ```
-
-3. It should have this basic structure
-
-    ```Shell
-    $VOCdevkit/                           # development kit
-    $VOCdevkit/VOCcode/                   # VOC utility code
-    $VOCdevkit/VOC2007                    # image sets, annotations, etc.
-    # ... and several other directories ...
-    ```
-
-4. Create symlinks for the PASCAL VOC dataset
-
-    ```Shell
-    cd $TFFRCNN/data
-    ln -s $VOCdevkit VOCdevkit2007
-    ```
-
-5. Download pre-trained model [VGG16](https://drive.google.com/open?id=0ByuDEGFYmWsbNVF5eExySUtMZmM) and put it in the path `./data/pretrain_model/VGG_imagenet.npy`
-
-6. Run training scripts 
-
-    ```Shell
-    cd $TFFRCNN
-    python ./faster_rcnn/train_net.py --gpu 0 --weights ./data/pretrain_model/VGG_imagenet.npy --imdb voc_2007_trainval --iters 70000 --cfg  ./experiments/cfgs/faster_rcnn_end2end.yml --network VGGnet_train --set EXP_DIR exp_dir
-    ```
-
-7. Run a profiling
-
-    ```Shell
-    cd $TFFRCNN
-    # install a visualization tool
-    sudo apt-get install graphviz  
-    ./experiments/profiling/run_profiling.sh 
-    # generate an image ./experiments/profiling/profile.png
-    ```
-
 ### Training on KITTI detection dataset
 
 1. Download the KITTI detection dataset
