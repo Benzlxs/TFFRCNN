@@ -98,7 +98,7 @@ class SolverWrapper(object):
         # import tensorflow.python.ops.gen_logging_ops as logging_ops
         from tensorflow.python.ops import gen_logging_ops
         from tensorflow.python.framework import ops as _ops
-        log_image = gen_logging_ops._image_summary(log_image_name, tf.expand_dims(log_image_data, 0), max_images=1)
+        log_image = gen_logging_ops.image_summary(log_image_name, tf.expand_dims(log_image_data, 0), max_images=1)
         #log_image = tf.summary.image(log_image_name, tf.expand_dims(log_image_data, 0), max_outputs=1)
 
         _ops.add_to_collection(_ops.GraphKeys.SUMMARIES, log_image)
@@ -153,7 +153,7 @@ class SolverWrapper(object):
 
         # load vgg16
         if self.pretrained_model is not None and not restore:
-	    # import pudb;pudb.set_trace()	
+	    # import pudb;pudb.set_trace()
             try:
                 print ('Loading pretrained model weights from {:s}').format(self.pretrained_model)
                 #self.net.load(self.pretrained_model, sess, True)
@@ -398,7 +398,7 @@ def train_net(network, imdb, roidb, output_dir, log_dir, pretrained_model=None, 
 
     config = tf.ConfigProto(allow_soft_placement=True)
     config.gpu_options.allocator_type = 'BFC'
-    config.gpu_options.per_process_gpu_memory_fraction = 0.40
+    config.gpu_options.per_process_gpu_memory_fraction = 0.9
     with tf.Session(config=config) as sess:
         sw = SolverWrapper(sess, network, imdb, roidb, output_dir, logdir= log_dir, pretrained_model=pretrained_model)
         print 'Solving...'

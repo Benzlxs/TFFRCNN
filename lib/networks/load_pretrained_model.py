@@ -46,7 +46,7 @@ def import_pretrained_models_from_ckpt( sess, pretrained_model):
     restorer.restore(sess, pretrained_model)
     ## fix some variables
     if bool(variables_to_fix):
-	print("restore the fixed variable")
+        print("restore the fixed variable")
         fix_variables(sess, pretrained_model)
     #raise NotImplementedError
 
@@ -57,7 +57,7 @@ def get_variables_to_restore(variables, var_keep_dic):
     variables_to_restore = []
     for v in variables:
         # exclude the first conv layer to swap RGB to BGR
-        if v.name == ( 'resnet_v1_101/conv1/weights:0'):
+        if v.name == ( 'vgg_16/conv1/conv1_1/weights:0'):
             variables_to_fix[v.name] = v
             continue
         if v.name.split(':')[0] == "global_step":  ## this one different data format
@@ -81,13 +81,13 @@ def get_variables_in_checkpoint_file(pretrained_model):
 
 
 def fix_variables(sess, pretrained_model):
-    print('Fix Resnet V1 layers..')
-    with tf.variable_scope('resnet_v1_101') as scope:
+    print('Fix vgg_16 layers..')
+    with tf.variable_scope('vgg_16') as scope:
       with tf.device("/cpu:0"):
         # fix RGB to BGR
-        conv1_rgb = tf.get_variable("conv1_rgb", [7, 7, 3, 64], trainable=False)
-        restorer_fc = tf.train.Saver({"resnet_v1_101/conv1/weights": conv1_rgb})
+        conv1_rgb = tf.get_variable("conv1_rgb", [3, 3, 3, 64], trainable=False)  ## [7,7,3,64] for resnet
+        restorer_fc = tf.train.Saver({"vgg_16/conv1/conv1_1/weights": conv1_rgb})
         restorer_fc.restore(sess, pretrained_model)
 
-        sess.run(tf.assign(variables_to_fix['resnet_v1_101/conv1/weights:0'],
+        sess.run(tf.assign(variables_to_fix['vgg_16/conv1/conv1_1/weights:0'],
                            tf.reverse(conv1_rgb, [2])))
