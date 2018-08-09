@@ -1,29 +1,16 @@
-# TFFRCNN
+# Experiments on how anchor number affect detection results
 
-This is an experimental **T**ensor **F**low implementation of **F**aster **RCNN** (**TFFRCNN**), mainly based on the work of [smallcorgi](https://github.com/smallcorgi/Faster-RCNN_TF) and [rbgirshick](https://github.com/rbgirshick/py-faster-rcnn). I have re-organized the libraries under `lib` path, making each of python modules independent to each other, so you can understand, re-write the code easily.
+This doe is forded from https://github.com/Benzlxs/TFFRCNN/tree/resent_fpn on implimentation of Faster RCNN[Faster R-CNN: Towards Real-Time Object Detection with Region Proposal Networks](http://arxiv.org/pdf/1506.01497v3.pdf) by Shaoqing Ren, Kaiming He, Ross Girshick, Jian Sun.
 
-For details about R-CNN please refer to the paper [Faster R-CNN: Towards Real-Time Object Detection with Region Proposal Networks](http://arxiv.org/pdf/1506.01497v3.pdf) by Shaoqing Ren, Kaiming He, Ross Girshick, Jian Sun.
+Code is run to show how anchor number affect detection results,
 
-### What's New
 
-- [x] Resnet networks support
-- [x] KITTI object detection dataset support
-- [x] **P**osition **S**ensitive **ROI Pooling** (psroi_pooling), not testing yet
-- [x] Hard Example Mining
-- [x] Data Augment
-- [x] PVANet
-- [x] Tensorflow 1.0
-- [ ] R-FCN
-- [ ] Multi-layer Architecture (HyperNet)
-- [ ] more hacks...
 
 ### Acknowledgments: 
 
-1. [py-faster-rcnn](https://github.com/rbgirshick/py-faster-rcnn)
+1. [TFFRCNN](https://github.com/CharlesShang/TFFRCNN)
 
-2. [Faster-RCNN_TF](https://github.com/smallcorgi/Faster-RCNN_TF)
 
-3. [ROI pooling](https://github.com/zplizzi/tensorflow-fast-rcnn)
 
 ### Requirements: software
 
@@ -37,41 +24,17 @@ For details about R-CNN please refer to the paper [Faster R-CNN: Towards Real-Ti
 
 ### Installation (sufficient for the demo)
 
-1. Clone the Faster R-CNN repository
-  ```Shell
-  git clone https://github.com/CharlesShang/TFFRCNN.git
-  ```
+1. Following instruction on [TFFRCNN] (https://github.com/CharlesShang/TFFRCNN) to install requirements
 
-2. Build the Cython modules
-    ```Shell
-    cd TFFRCNN/lib
-    make # compile cython and roi_pooling_op, you may need to modify make.sh for your platform
-    ```
 
 ### Demo
 
-*After successfully completing [basic installation](#installation-sufficient-for-the-demo)*, you'll be ready to run the demo.
-
-To run the demo
-```Shell
-cd $TFFRCNN
-python ./faster_rcnn/demo.py --model model_path
-```
-The demo performs detection using a VGG16 network trained for detection on PASCAL VOC 2007.
 
 ### Download list
 
 1. [VGG16 trained on ImageNet](https://drive.google.com/open?id=0ByuDEGFYmWsbNVF5eExySUtMZmM)
 
-2. [VGG16 - TFFRCNN (0.689 mAP on VOC07)](https://drive.google.com/file/d/0B_xFdh9onPagX0JWRlR0cTZ5OGc/view?usp=sharing).
 
-3. [VGG16 - TFFRCNN (0.748 mAP on VOC07)](https://drive.google.com/file/d/0B_xFdh9onPagVmt5VHlCU25vUEE/view?usp=sharing)
-
-4. [Resnet50 trained on ImageNet](https://drive.google.com/file/d/0B_xFdh9onPagSWU1ZTAxUTZkZTQ/view?usp=sharing)
-
-5. [Resnet50 - TFFRCNN (0.712 mAP on VOC07)](https://drive.google.com/file/d/0B_xFdh9onPagbXk1b0FIeDRJaU0/view?usp=sharing)
-
-6. [PVANet trained on ImageNet, converted from caffemodel](https://drive.google.com/open?id=0B_xFdh9onPagQnJBdWl3VGQxam8)
 
 ### Training on Pascal VOC 2007
 
