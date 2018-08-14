@@ -26,8 +26,8 @@ Code is run to show how anchor number affect detection results,
 1. Following instruction on [TFFRCNN] (https://github.com/CharlesShang/TFFRCNN) to install requirements
 
 
-![alt text](https://github.com/Benzlxs/TFFRCNN/edit/master/all_results.png)
-
+![alt text](/all_results.png)
+https://github.com/Benzlxs/TFFRCNN/edit/master
 
 ### Demo
 
