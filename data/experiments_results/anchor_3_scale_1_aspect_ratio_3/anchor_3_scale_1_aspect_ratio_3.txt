@@ -1,0 +1,160 @@
+5000
+  done.
+car_detection AP: 35.603996 23.474461 19.582773
+pedestrian_detection AP: 36.997978 30.927202 28.897274
+cyclist_detection AP: 22.067232 17.047611 16.936909
+10000
+  done.
+car_detection AP: 59.069572 40.761173 34.088890
+pedestrian_detection AP: 44.898483 37.919827 34.972649
+cyclist_detection AP: 33.088501 28.771740 28.092554
+15000
+  done.
+car_detection AP: 68.051544 45.637665 37.851696
+pedestrian_detection AP: 51.709324 44.448235 41.430637
+cyclist_detection AP: 41.837978 36.078575 34.131565
+20000
+  done.
+car_detection AP: 69.358337 45.968094 39.917820
+pedestrian_detection AP: 56.948162 48.545982 44.572987
+cyclist_detection AP: 41.921318 33.994827 32.816185
+25000
+  done.
+car_detection AP: 70.554260 49.650841 40.901890
+pedestrian_detection AP: 63.404774 54.215359 49.122459
+cyclist_detection AP: 55.149586 44.606277 42.697708
+30000
+  done.
+car_detection AP: 75.427254 55.297287 46.417377
+pedestrian_detection AP: 59.642845 50.706089 46.838837
+cyclist_detection AP: 56.151241 48.334141 46.658592
+35000
+  done.
+car_detection AP: 75.073761 55.202717 46.533726
+pedestrian_detection AP: 64.806503 55.332493 50.061363
+cyclist_detection AP: 53.768391 46.523048 43.289795
+40000
+  done.
+car_detection AP: 75.244751 55.913639 47.216797
+pedestrian_detection AP: 64.265266 54.928822 49.609108
+cyclist_detection AP: 55.828411 50.509365 47.359028
+45000
+  done.
+car_detection AP: 74.932304 55.288567 46.719082
+pedestrian_detection AP: 65.009712 55.118362 50.147915
+cyclist_detection AP: 51.551510 45.290253 43.607937
+50000
+  done.
+car_detection AP: 75.395409 55.752296 46.900406
+pedestrian_detection AP: 61.245579 52.454876 48.659180
+cyclist_detection AP: 60.588051 51.971455 49.205677
+55000
+  done.
+car_detection AP: 76.009026 56.182640 47.449284
+pedestrian_detection AP: 64.365158 53.218555 49.517254
+cyclist_detection AP: 59.456779 50.361889 47.641628
+60000
+  done.
+car_detection AP: 74.261757 54.901482 46.226276
+pedestrian_detection AP: 61.985588 53.013275 49.068546
+cyclist_detection AP: 54.884571 49.285408 46.939354
+65000
+  done.
+car_detection AP: 75.053040 55.975014 47.387348
+pedestrian_detection AP: 62.427139 53.220074 49.572502
+cyclist_detection AP: 53.401077 46.673672 44.611298
+70000
+  done.
+car_detection AP: 75.181885 55.551292 47.045414
+pedestrian_detection AP: 63.299984 54.599350 49.418526
+cyclist_detection AP: 54.904850 47.542656 45.095234
+75000
+  done.
+car_detection AP: 75.346680 55.829834 47.173100
+pedestrian_detection AP: 63.746048 53.079258 49.162567
+cyclist_detection AP: 54.398769 47.603596 45.242336
+80000
+  done.
+car_detection AP: 75.502007 55.845444 47.238701
+pedestrian_detection AP: 63.228504 52.672188 49.298851
+cyclist_detection AP: 54.632397 47.630760 45.253841
+85000
+  done.
+car_detection AP: 75.661095 56.100620 47.313644
+pedestrian_detection AP: 63.235302 54.599773 49.421028
+cyclist_detection AP: 57.160862 49.552071 46.876953
+90000
+  done.
+car_detection AP: 75.971230 55.965145 47.362507
+pedestrian_detection AP: 62.801182 52.409847 48.373909
+cyclist_detection AP: 55.575378 49.125511 45.603588
+95000
+  done.
+car_detection AP: 76.289062 56.088753 47.379215
+pedestrian_detection AP: 63.125885 52.565830 48.658218
+cyclist_detection AP: 56.950611 49.826881 46.318592
+100000
+  done.
+car_detection AP: 76.088463 56.102871 47.434589
+pedestrian_detection AP: 61.210621 52.344662 48.288319
+cyclist_detection AP: 57.602596 49.943104 46.571877
+105000
+  done.
+car_detection AP: 75.659294 55.901993 47.199326
+pedestrian_detection AP: 62.961609 52.722717 48.629349
+cyclist_detection AP: 57.772827 50.128452 46.999832
+110000
+  done.
+car_detection AP: 77.545448 57.027222 48.315914
+pedestrian_detection AP: 58.671844 49.406918 44.815765
+cyclist_detection AP: 64.608643 54.233654 51.212807
+115000
+  done.
+car_detection AP: 75.779465 56.087112 47.313454
+pedestrian_detection AP: 63.160866 52.934914 48.855446
+cyclist_detection AP: 57.231754 50.119347 46.563847
+120000
+  done.
+car_detection AP: 75.894112 56.190735 47.440624
+pedestrian_detection AP: 63.248940 52.737080 48.775635
+cyclist_detection AP: 57.662022 50.091450 46.958302
+125000
+  done.
+car_detection AP: 75.730194 56.037827 47.349949
+pedestrian_detection AP: 61.651588 52.633339 48.652725
+cyclist_detection AP: 57.662022 50.081299 46.932259
+130000
+  done.
+car_detection AP: 75.632706 55.872261 47.258350
+pedestrian_detection AP: 62.942051 52.664600 48.522285
+cyclist_detection AP: 57.596207 50.091450 46.958302
+135000
+  done.
+car_detection AP: 75.790855 55.974144 47.296219
+pedestrian_detection AP: 61.549389 52.524662 48.531895
+cyclist_detection AP: 57.605423 50.086617 46.961971
+140000
+  done.
+car_detection AP: 75.783577 56.159721 47.435524
+pedestrian_detection AP: 61.520542 52.586056 48.509617
+cyclist_detection AP: 57.605423 50.326729 47.526577
+145000
+  done.
+car_detection AP: 77.176514 57.274391 47.874447
+pedestrian_detection AP: 58.820843 51.248474 46.311646
+cyclist_detection AP: 50.321049 51.253391 51.093643
+150000
+  done.
+car_detection AP: 75.880058 56.165993 47.449169
+pedestrian_detection AP: 61.760418 52.667976 48.673031
+cyclist_detection AP: 56.873863 50.204788 47.328930
+155000
+  done.
+car_detection AP: 75.874840 56.160503 47.438278
+pedestrian_detection AP: 61.657776 52.664845 48.564960
+cyclist_detection AP: 56.873863 50.204788 47.328930
+160000
+  done.
+car_detection AP: 75.864433 56.161339 47.439739
+pedestrian_detection AP: 61.586357 52.608593 48.535557
+cyclist_detection AP: 56.873863 50.204788 47.328930
