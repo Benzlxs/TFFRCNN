@@ -1,6 +1,6 @@
 # Experiments on how anchor number affect detection results
 
-This doe is forded from https://github.com/Benzlxs/TFFRCNN/tree/resent_fpn on implimentation of Faster RCNN[Faster R-CNN: Towards Real-Time Object Detection with Region Proposal Networks](http://arxiv.org/pdf/1506.01497v3.pdf) by Shaoqing Ren, Kaiming He, Ross Girshick, Jian Sun.
+This repo is forded from https://github.com/CharlesShang/TFFRCNN on implimentation of Faster RCNN[Faster R-CNN: Towards Real-Time Object Detection with Region Proposal Networks](http://arxiv.org/pdf/1506.01497v3.pdf) by Shaoqing Ren, Kaiming He, Ross Girshick, Jian Sun.
 
 Code is run to show how anchor number affect detection results,
 
