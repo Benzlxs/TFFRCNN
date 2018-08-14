@@ -11,6 +11,7 @@
 experiments/logs/*
 experiments/eval/*
 data/cache/*
+data
 data/pretrain_model
 data/VOC*
 data/KITTI*
